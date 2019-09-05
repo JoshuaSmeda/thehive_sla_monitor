@@ -232,7 +232,7 @@ def bot_start():
     t.sleep(120)
 
 def webserver_start():
-    app.run(port=3000, host='192.168.1.10')
+    app.run(port=3000, host='$insert_server_ip_here_where_you_wish_to_bind_webserver_on')
     return
 
 if __name__ == '__main__':
