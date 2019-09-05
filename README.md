@@ -17,6 +17,8 @@ Once a alert fires, it won't be re-alert on unless it hits a new SLA tier (moves
 
 Each alert will create a slack notice that allows you to promote to case or ignore the alert for 30 minutes from within Slack and not via the Hive web interface. When promoting a case, Slack will link you to the imported case, when ignoring, the alert won't re-alert at 45 / 60 minutes for 30 minutes.
 
+A audit / record log is generated constantly. You can utilize the ```collect_logs``` functions to collect more logs as you wish.
+
 # get setup
 1. Install requirements ```pip install -r requirements```
 2. Edit variables in ```bot.py``` and ```soc_bot/templates.py```
