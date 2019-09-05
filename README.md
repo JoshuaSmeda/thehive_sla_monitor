@@ -9,9 +9,11 @@ This bot connects to your slack instance via the Slack API. The bot periodically
 
 Alerts that are older than:
 
-30 minutes - SMS team member
-45 minutes - Call team member
-60 minutes - Escalate to senior
+30 minutes - SMS team member <br>
+45 minutes - Call team member <br>
+60 minutes - Escalate to senior <br>
+
+Once a alert fires, it won't be re-alert on unless it hits a new SLA tier (moves from 30 minutes to 45 minutes).
 
 Each alert will create a slack notice that allows you to promote to case or ignore the alert for 30 minutes from within Slack and not via the Hive web interface. When promoting a case, Slack will link you to the imported case, when ignoring, the alert won't re-alert at 45 / 60 minutes for 30 minutes.
 
