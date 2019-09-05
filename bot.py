@@ -7,7 +7,6 @@ import json, ast
 import threading
 import os
 import re
-from itertools import izip
 from multiprocessing import Process, Queue, Manager
 from flask import Flask, request, make_response, redirect
 from datetime import datetime, time
@@ -147,7 +146,7 @@ def send_sms():
     else:
       body = 'Hive Alert SLA Notice - ' + "\n" + v
       send_from = twilio_number
-      send_to = '+27796915438'
+      send_to = '$_insert_number'
       message = twilio_client.messages.create(body=body, from_=send_from, to=send_to)
       print("SMS Sent: " + str(message.sid))
       try:
@@ -211,7 +210,7 @@ def complete(id):
   res = slack_client.api_call("chat.update", channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="SOC Bot: Case Promoted", blocks=slack_bot_alert_notice_update(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
   res = slack_client.api_call("chat.getPermalink",channel=alert_dict[id]["channel"],message_ts=alert_dict[id]["ts"])
 
-  hive_link = "https://192.168.1.10/hive/index.html#/case/{}/details".format(case_id)
+  hive_link = "https://$insert_server_ip/hive/index.html#/case/{}/details".format(case_id)
   return redirect(hive_link, code=302)
 
 @app.route("/ignore/<id>", methods=['GET', 'POST'])
