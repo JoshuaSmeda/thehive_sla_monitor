@@ -3,7 +3,7 @@
 # afterhours_soc_bot
 Runs as a service, queries Hive alerts based on a severity status. Cross checks SLA agreements and calls / SMS's the person on shift to attend to the alert. Integrates with Slack, Twilio and TheHive
 
-# Outlines
+# outlines
 
 This bot connects to your slack instance via the Slack API. The bot periodically polls the TheHive https://thehive-project.org/ using a API key. The bot grabs a list of alerts with a severity status of 3 (high) and performs SLA checks on the alerts (premature Hive cases). The following SLA's are outlined below:
 
@@ -15,7 +15,7 @@ Alerts that are older than:
 
 Each alert will create a slack notice that allows you to promote to case or ignore the alert for 30 minutes from within Slack and not via the Hive web interface. When promoting a case, Slack will link you to the imported case, when ignoring, the alert won't re-alert at 45 / 60 minutes for 30 minutes.
 
-# Get setup
+# get setup
 1. Install requirements ```pip install -r requirements```
 2. Edit variables in ```bot.py``` and ```soc_bot/templates.py```
 3. Create a slack app / bot - many guides on this.
@@ -40,13 +40,13 @@ server {
 
 ```
 
-# Recommendations
+# recommendations
 
 I recommend setting up SSL on your website as well and ideally should only be acessible within your internal network. Setting this up is outside the scope of this readme.
 
 If you don't wish to use nginx / apache for now - you can use ngrok.com - I discourage using this for production use unless you have a business account and can somewhat lock this down using IP whitelisting and password protection (not paid for feature). https://ngrok.com/docs
 
-# Setting up as a python sysint service:
+# setting up as a python sysint service
 
 Place in ```/etc/systemd/system/soc_bot.service```
 ```
