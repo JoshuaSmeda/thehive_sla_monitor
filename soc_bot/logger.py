@@ -17,7 +17,7 @@ log_handler = logging.StreamHandler()
 log_handler.setFormatter(log_formatter)
 log.addHandler(log_handler)
 
-log_directory = '/opt/soc_alerter/logs/'
+log_directory = '/opt/soc_bot/logs/'
 
 if os.path.isdir(log_directory) == False:
   print("Creating Log Directory")
