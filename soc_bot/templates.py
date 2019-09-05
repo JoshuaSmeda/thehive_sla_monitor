@@ -29,7 +29,7 @@ def slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age):
           "elements": [
           {
             "type": "button",
-            "url": "http://" + hive_url + ":3000/complete/" + id,
+            "url": "http://" + hive_url + ":3000/web_api/complete/" + id,
             "text": {
               "type": "plain_text",
               "text": "Promote To Case"
@@ -38,7 +38,7 @@ def slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age):
           },
           {
             "type": "button",
-            "url": "http://" + hive_url + ":3000/ignore/" + id,
+            "url": "http://" + hive_url + ":3000/web_api/ignore/" + id,
             "text": {
               "type": "plain_text",
               "text": "Ignore Case"
