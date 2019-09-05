@@ -159,7 +159,7 @@ def make_call(id):
   if id in called_list:
     print("User has been called regarding ID: " + id)
   else:
-    call = twilio_client.calls.create(url=twimlet, to='+27796915438', from_=twilio_number)
+    call = twilio_client.calls.create(url=twimlet, to='$insert_phone_number', from_=twilio_number)
     print("Call Sent: " + str(call.sid))
     try:
       add_to_called_list(id)
