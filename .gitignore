@@ -1,0 +1,3 @@
+*.pyc
+logs/*
+soc_bot/*.pyc
