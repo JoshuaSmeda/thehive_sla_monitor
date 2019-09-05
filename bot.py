@@ -42,7 +42,7 @@ twimlet = "$insert_created_twimlet"
 slack_client = SlackClient('xoxb-131509810032-507548775220-sMTWT3na0YlRq1VMBEYXblKo')
 twilio_client = Client(twilio_account_sid, twilio_auth_token)
 api = TheHiveApi('$insert_hive_ip & port e.g http://169.254.1.1:9000', hive_api_key)
-channel = 'CET23BHJS'
+channel = '$insert_channel_id'
 
 # Instatiate Flask classes
 app = Flask(__name__)
