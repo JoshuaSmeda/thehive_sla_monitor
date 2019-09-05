@@ -15,8 +15,8 @@ from slackclient import SlackClient
 from twilio.rest import Client
 from thehive4py.api import TheHiveApi
 from thehive4py.query import *
-from soc_alerter.templates import slack_bot_pick_user_template, slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
-from soc_alerter.logger import collect_logs, log_current_time
+from soc_bot.templates import slack_bot_pick_user_template, slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
+from soc_bot.logger import collect_logs, log_current_time
 
 # Instantiate Hive variables
 sla_30 = 1800
