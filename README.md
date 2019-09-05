@@ -59,8 +59,8 @@ Description=SOC Bot
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python /opt/soc_alerter/bot.py
-WorkingDirectory=/opt/soc_alerter/
+ExecStart=/usr/bin/python /opt/soc_bot/bot.py
+WorkingDirectory=/opt/soc_bot/
 
 [Install]
 WantedBy=sysinit.target
