@@ -39,7 +39,7 @@ slack_webhook_url = '$insert_slack_channel_webhook'
 twimlet = "$insert_created_twimlet"
 
 # Initialize API classes
-slack_client = SlackClient('xoxb-131509810032-507548775220-sMTWT3na0YlRq1VMBEYXblKo')
+slack_client = SlackClient('$slack_app_token')
 twilio_client = Client(twilio_account_sid, twilio_auth_token)
 api = TheHiveApi('$insert_hive_ip & port e.g http://169.254.1.1:9000', hive_api_key)
 channel = '$insert_channel_id'
