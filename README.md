@@ -37,9 +37,6 @@ Create a twilio account to receive calls / sms's
 4. Add in custom variables in ```configuration.py``` which is injected into the main application at runtime.
 5. Run using ```python bot.py``` - if you wish to run as a service, see below:
 
-
-Create a "echo" twimlet to playback a custom voice message when called by Twilio: https://www.twilio.com/labs/twimlets/echo
-
 It's recommended to setup a reverse proxy to forward requests to your flask server running on port 3000. Here's a mini example using Nginx - this is not production ready:
 
 ```
