@@ -1,13 +1,13 @@
-## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoshuaSmeda/TheHive_SLA_Monitor/issues)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoshuaSmeda/TheHive_SLA_Monitor/issues)
 
 # TheHive_SLA_Monitor
 This applications runs as a Linux service, queries TheHive alerts based on a set severity status while cross checking set SLA limits and then SMS's or calls specified people if there is a breach. This is achieved with the following technologies:
 
-Python3
-Flask
-Twilio
-Slack
-TheHive (SIRP)
+Python3 <br>
+Flask <br>
+Twilio <br>
+Slack <br>
+TheHive (SIRP) <br>
 
 ## Overview:
 
