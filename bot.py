@@ -51,7 +51,6 @@ alert_dict = manager.dict()
 def create_hive30_dict(id, rule_name, alert_date, alert_age, *args):
   logging.info("Updating 30M SLA dictionary")
   hive_30_dict.update({ id : rule_name, })
-  send_sms(*args)
   slack_bot_notice_alert(channel, id, rule_name, alert_date, alert_age)
   send_sms(*args)
 
