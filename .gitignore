@@ -1,3 +1,6 @@
 *.pyc
 logs/*
-soc_bot/*.pyc
+thehive_sla_monitor/*.pyc
+thehive_sla_monitor.debug.log
+env/*
+__pycache__/*
