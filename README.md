@@ -42,14 +42,9 @@ It's recommended to setup a reverse proxy to forward requests to your flask serv
 ```
 server {
   listen 80;
-  server_name super_cool.server.com;
-
-  access_log /var/log/nginx/web_api/access.log;
-  error_log /var/log/nginx/web_api/error.log error
-  
+  server_name thehive_sla_monitor.domain.com;
 
   location /web_api/ {
-    proxy_ignore_client_abort on;
     proxy_pass http://192.168.1.2:3000/;
   }
 }
@@ -65,7 +60,7 @@ Description=TheHive SLA Monitor
 
 [Service]
 Type=simple
-ExecStart=/path/to/dir/venv/bin/python /path/to/dir/bot.py
+ExecStart=/path/to/dir/env/bin/python /path/to/dir/bot.py
 WorkingDirectory=/path/to/dir/
 
 [Install]
