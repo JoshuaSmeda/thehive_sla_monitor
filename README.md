@@ -27,8 +27,8 @@ A log record is generated each time which allows you to track and audit events.
 
 To do:
 
-Create a slack application to receive messages to your workspace
-Create a "echo" twimlet to playback a custom voice message when called by Twilio: https://www.twilio.com/labs/twimlets/echo
+Create a slack application to receive messages to your workspace <br>
+Create a "echo" twimlet to playback a custom voice message when called by Twilio: https://www.twilio.com/labs/twimlets/echo <br>
 Create a twilio account to receive calls / sms's
 
 1. Install Python Virtual Environment ```python3 -m venv env```
