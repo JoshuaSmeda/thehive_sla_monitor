@@ -37,7 +37,7 @@ Create a twilio account to receive calls / sms's
 2. Activate Virtual Environment ``` . env/bin/activate```
 3. Install dependencies ```pip install -r requirements.txt```
 4. Add in custom variables in ```configuration.py``` which is injected into the main application at runtime.
-5. Run using ```python bot.py``` - if you wish to run as a service, see below:
+5. Run using ```python main.py``` - if you wish to run as a service, see below:
 
 It's recommended to setup a reverse proxy to forward requests to your Python Flask server running (defined within ```configuration.py```). Here's a mini example using Nginx. Note, this is not configured for production use. Replace ```x.x.x.x``` with the IP address you plan on having your application listen on.
 
@@ -64,7 +64,7 @@ Description=TheHive SLA Monitor
 
 [Service]
 Type=simple
-ExecStart=/path/to/dir/env/bin/python /path/to/dir/bot.py
+ExecStart=/path/to/dir/env/bin/python /path/to/dir/main.py
 WorkingDirectory=/path/to/dir/
 
 [Install]

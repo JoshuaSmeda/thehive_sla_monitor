@@ -1,47 +1,62 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import re
 import sys
 import json, ast
 import time as t
-import threading
 import configuration
 from thehive_sla_monitor.logger import logging
 
-from multiprocessing import Process, Queue, Manager
+from multiprocessing import Process, Manager
 from flask import Flask, request, make_response, redirect
 from datetime import datetime, time
-from slack import WebClient
 from twilio.rest import Client
 from thehive4py.api import TheHiveApi
 from thehive4py.query import *
-from thehive_sla_monitor.templates import slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
+from thehive_sla_monitor.slack.templates import slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
 
-# Defined SLA Limits in int: seconds
-sla_30 = 1800
-sla_45 = 2700
-sla_60 = 3600
+from thehive_sla_monitor.helpers import *
+from thehive_sla_monitor.alerter import Alerter
+from thehive_sla_monitor.slack.base import Slack
 
-hive_30_list = []
-hive_30_dict = {}
-hive_45_list = []
-hive_45_dict = {}
-hive_60_list = []
-hive_60_dict = {}
-ignore_list = []
-called_list = []
+
+class EscalationSelector:
+  """
+  Dynamically escalate task based on configuration
+  """
+  @classmethod
+  def escalate(cls, severity, *args, **kwargs):
+    getattr(cls, f'{severity}')(*args, **kwargs)
+
+  @classmethod
+  def LowSeverity(cls, *args, **kwargs):
+    print(*args)
+    print(**kwargs)
+    print('low')
+    # slack_bot_notice_alert(channel, id, rule_name, alert_date, alert_age)
+    # send_sms(*args)
+
+  @classmethod
+  def MediumSeverity(cls, id, rule_name, alert_date, alert_age, *args, **kwargs):
+    hive_45_dict.update({ id : rule_name })
+    logging.warning('MediumSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (id, rule_name, alert_date, alert_age))
+    Slack()
+    #slack_bot_notice_alert(channel, id, rule_name, alert_date, alert_age)
+
+  @classmethod
+  def HighSeverity(cls, id, rule_name, alert_date, alert_age, *args, **kwargs):
+    hive_60_dict.update({ id : rule_name })
+    logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (id, rule_name, alert_date, alert_age))
+    Slack()
+#    Slack.escalate(channel, id, rule_name, alert_date, alert_age)
+  # Escalate to senior - Create a list of multiple numbers and iterate through list to call them!
+
 
 # Instantiate Slack & Twilio variables
-slack_webhook_url = configuration.SLACK_SETTINGS['SLACK_WEBHOOK_URL']
 twimlet = configuration.TWILIO_SETTINGS['TWIMLET_URL']
 
 # Initialize API classes
-slack_client = WebClient(configuration.SLACK_SETTINGS['SLACK_APP_TOKEN'])
 twilio_client = Client(configuration.TWILIO_SETTINGS['ACCOUNT_SID'], configuration.TWILIO_SETTINGS['AUTH_TOKEN'])
 api = TheHiveApi("http://%s:%s" % (configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP'], configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT']), configuration.SYSTEM_SETTINGS['HIVE_API_KEY'])
-channel = configuration.SLACK_SETTINGS['SLACK_CHANNEL']
 
 # Instatiate Flask classes
 app = Flask(__name__)
@@ -66,54 +81,32 @@ def create_hive60_dict(id, rule_name, alert_date, alert_age, *args):
   logging.info(' Alert ID: ' + id + ' Rule Name: ' + rule_name + ' Alert Date: ' + alert_date + ' Alert Age: ' + alert_age)
   # Escalate to senior - Create a list of multiple numbers and iterate through list to call them!
 
-def add_to_30m(id):
-  if id in hive_30_list:
-    logging.info('Already added - 30 minute SLA list: ' + id)
-  else:
-    logging.info('Appending - 30 minute SLA list: ' + id)
-    hive_30_list.append(id)
 
-def add_to_45m(id):
-  if id in hive_45_list:
-    logging.info('Already added - 45 minute SLA list: ' + id)
-  else:
-    logging.info('Appending - 45 minute SLA list: ' + id)
-    hive_45_list.append(id)
+class TheHiveSLAMonitor():
+  def __init__(self, test):
+    print('test')
 
-def add_to_60m(id):
-  if id in hive_60_list:
-    logging.info('Already added - 60 minute SLA list: ' + id)
-  else:
-    logging.info('Appending - 60 minute SLA list: ' + id)
-    hive_60_list.append(id)
 
-def clean_ignore_list(id):
-  t.sleep(3600)
-  logging.info("Removing " + id + " from ignore list")
-  ignore_list.remove(id)
+  # Switch case to pythonically handle severity status for escalations
+def severity_switch(i):
+  switcher={
+    1:'LowSeverity',
+    2:'MediumSeverity',
+    3:'HighSeverity'
+  }
+  return switcher.get(i, "Invalid severity selected")
 
-def add_to_temp_ignore(id):
-  logging.info("Adding " + id + " to ignore list")
-  ignore_list.append(id)
-  ignore_thread = threading.Thread(target=clean_ignore_list)
-  ignore_thread.start()
-  return id
+# Define SLA tiers by collecting from configuration.py
+sla_30 = configuration.SLA_SETTINGS['30M']
+sla_45 = configuration.SLA_SETTINGS['45M']
+sla_60 = configuration.SLA_SETTINGS['60M']
 
-def add_to_called_list(id):
-  logging.info("Adding " + id + " to called list")
-  called_list.append(id)
-  return id
-
-def is_empty(any_structure):
-    if any_structure:
-        return False
-    else:
-        return True
-
-def search(title, query):
+def thehive_search(title, query):
   current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
   current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
   response = api.find_alerts(query=query)
+  
+  alert_escalate = Alerter()
 
   if response.status_code == 200:
     data = json.dumps(response.json())
@@ -123,23 +116,26 @@ def search(title, query):
         ts = int(d['createdAt'])
         ts /= 1000
         alert_date = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        logging.info("Found: " + d['id'] + " " + d['title'] + " " + str(alert_date))
+        logging.info('Searching TheHive found ID: {id}. Title: {t}. Alert Date: {d}'.format(id=d['id'], t=d['title'], d=str(alert_date)))
         alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
         diff = (current_date - alert_date)
         if sla_30 < diff.total_seconds() and sla_45 > diff.total_seconds():
-          logging.info("30/M SLA: " + str(diff) + " " + d['id'])
+          logging.warning("Breach: 30/M SLA: " + str(diff) + " " + d['id'])
+          alert_escalate.add_to_30m(d['id'])
+          EscalationSelector.escalate(severity_switch(1), test='dog')
           create_hive30_dict(d['id'], d['title'], str(alert_date), str(diff), d)
-          add_to_30m(d['id'])
+        
         elif sla_45 < diff.total_seconds() and sla_60 > diff.total_seconds():
-          logging.info("45/M SLA: " + str(diff) + " " + d['id'])
-          create_hive45_dict(d['id'], d['title'], str(alert_date), str(diff), d)
-          add_to_45m(d['id'])
-        elif sla_60 < diff.total_seconds():
-          logging.info("60/M SLA: " + str(diff) + " " + d['id'])
-          create_hive60_dict(d['id'], d['title'], str(alert_date), str(diff), d)
-          add_to_60m(d['id'])
+          logging.warning("Breach: 45/M SLA: " + str(diff) + " " + d['id'])
+          alert_escalate.add_to_45m(d['id'])
+          EscalationSelector.escalate(severity_switch(2), d['id'], d['title'], str(alert_date), str(diff), d)
 
-    logging.info('')
+        elif sla_60 < diff.total_seconds():
+          logging.warning("Breach: 60/M SLA: " + str(diff) + " " + d['id'])
+          alert_escalate.add_to_60m(d['id'])
+          EscalationSelector.escalate(severity_switch(3), d['id'], d['title'], str(alert_date), str(diff), d)
+
+    print()
 
   else:
     logging.info('ko: {}/{}'.format(response.status_code, response.text))
@@ -185,25 +181,6 @@ def make_call(id):
     except Exception as error:
       logging.error("Error when adding to list after making call: " + str(error))
 
-def slack_bot_notice_alert(channel, id, rule_name, alert_date, alert_age):
-  for k,v in hive_30_dict.items():
-    if k in hive_30_list or k in ignore_list:
-      logging.warning("Already notified regarding ID / Previously ignored: " + k)
-    else:
-      res = slack_client.chat_postMessage(channel=channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
-      alert_dict[id] = {'channel': res['channel'],'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age }
-  for k,v in hive_45_dict.items():
-    if k in hive_45_list or k in ignore_list:
-      logging.warning("Already notified regarding ID / Previously ignored: " + k)
-    else:
-      res = slack_client.chat_postMessage(channel=channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
-      alert_dict[id] = {'channel': res['channel'],'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age }
-  for k,v in hive_60_dict.items():
-    if k in hive_60_list or k in ignore_list:
-      logging.warning("Already notified regarding ID / Previously ignored: " + k)
-    else:
-      res = slack_client.chat_postMessage(channel=channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
-      alert_dict[id] = {'channel': res['channel'],'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age }
 
 def promote_to_case(case_id):
   logging.info("Promoting Alert " + case_id)
@@ -224,7 +201,7 @@ def complete(id):
   res = slack_client.chat.update(channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="TheHive SLA Monitor: Case Promoted", blocks=slack_bot_alert_notice_update(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
   res = slack_client.chat.getPermalink(channel=alert_dict[id]["channel"],message_ts=alert_dict[id]["ts"])
 
-  hive_link = "https://%s/hive/index.html#/case/{}/details" % (configuration.SYSTEM_SETTINGS['HIVE_URL'], format(case_id))
+  hive_link = "https://%s/hive/index.html#/case/{}/details" % (configuration.SYSTEM_SETTINGS['HIVE_FQDN'], format(case_id))
   return redirect(hive_link, code=302)
 
 @app.route("/ignore/<id>", methods=['GET', 'POST'])
@@ -240,12 +217,20 @@ def ignore(id):
 
 def bot_start():
   while True:
-    search('Formatted DATA:', Eq('status', 'New'))
+    try:
+      thehive_search('Formatted DATA:', Eq('status', 'New'))
+    except Exception as e:
+      logging.error("Critical failure attempting to poll TheHive for alerts. %s" % e)
+      quit()
+    print("Run completed. Re-polling in 2 minutes.")
     t.sleep(120)
 
 def webserver_start():
-    app.run(port=configuration.SYSTEM_SETTINGS['FLASK_WEBSERVER_PORT'], host=configuration.SYSTEM_SETTINGS['FLASK_WEBSERVER_IP'])
-    return
+    if configuration.FLASK_SETTINGS['ENABLE_WEBSERVER']:
+      app.run(port=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_PORT'], host=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_IP'])
+      #return
+    else:
+      logging.warning("Flask webserver disabled. You will experience limited functionality.")
 
 if __name__ == '__main__':
   webserver_start = Process(target=webserver_start)

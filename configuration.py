@@ -1,20 +1,21 @@
 # Defined SLA Limits in int: seconds
 
 SLA_SETTINGS = {
-    '30M' = 1800,
-    '45M' = 2700,
-    '60M' = 3600
+    '30M': 1800,
+    '45M': 2700,
+    '60M': 3600
 }
 
 SYSTEM_SETTINGS = {
-    'HIVE_SERVER_IP': 'hiveurl.domain.com',
+    'HIVE_SERVER_IP': '192.168.1.15',
     'HIVE_SERVER_PORT': 9000,
-    'HIVE_URL': 'https://hiveurl.domain.com',
-    'HIVE_API_KEY' : '15015015agmagomag051015',
+    'HIVE_FQDN': 'http://192.168.1.15',
+    'HIVE_API_KEY' : 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',
     'LOG_FILE_LOCATION': 'thehive_sla_monitor.log'
 }
 
 FLASK_SETTINGS = {
+    'ENABLE_WEBSERVER': False,
     'FLASK_WEBSERVER_IP': '192.168.1.2',
     'FLASK_WEBSERVER_PORT': 3000
 }
