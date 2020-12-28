@@ -3,11 +3,13 @@
 # TheHive_SLA_Monitor
 This applications runs as a Linux service, queries TheHive (SIRP) alerts based on a set severity status while cross checking set SLA limits and then SMS's or calls specified people if there is a breach. This is achieved with the following technologies:
 
+```
 Python3 <br>
 Flask <br>
 Twilio <br>
 Slack <br>
 TheHive (SIRP) <br>
+```
 
 ## Overview:
 
@@ -50,7 +52,7 @@ server {
 
 ```
 
-Alternatively you can use ngrok.com to tunnel if you do not wish to use a webserver. This is discoraged due to the potential security risks associated.
+Alternatively you can use ```ngrok.com``` to tunnel if you do not wish to use a webserver. This is discoraged due to the potential security risks associated.
 
 ## Create sysinitv service on Linux (Debian):
 
