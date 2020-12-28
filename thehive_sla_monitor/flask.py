@@ -4,19 +4,20 @@ import configuration
 from thehive_sla_monitor.logger import logging
 from flask import Flask, request, make_response, redirect
 from thehive_sla_monitor.slack.base import Slack
+from main import promote_to_case
 
 # Instantiate Flask application
 app = Flask(__name__)
 
 @app.route("/complete/<id>", methods=['GET', 'POST'])
 def complete(id):
-  #case_id = promote_to_case(id)
+  case_id = promote_to_case(id)
   #if case_id != None: # Handle if TheHive alert doesn't exist
-#   logging.info("ID: %s. Case ID: %s" % (id, case_id))
+  logging.info("ID: %s. Case ID: %s" % (id, case_id))
 
-  #Slack().slack_chat_update(id)
+  Slack().slack_chat_update(id)
 
-  #hive_link = "https://%s/hive/index.html#/case/%s/details" % (configuration.SYSTEM_SETTINGS['HIVE_FQDN'], case_id)
+  hive_link = "http://%s:%d/index.html#!/case/%s/details" % (configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP'], configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT'], case_id)
   return redirect(hive_link, code=302)
 
 def add_to_temp_ignore(id):

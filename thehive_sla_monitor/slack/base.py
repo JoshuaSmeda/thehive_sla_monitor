@@ -38,5 +38,5 @@ class Slack():
         print(alert_dict)
         print(id)
         print(alert_dict[id]["ts"])
-       # self.slack_client.chat.update(channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="TheHive SLA Monitor: Case Promoted", blocks=slack_bot_alert_notice_update(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
-       # self.slack_client.chat.getPermalink(channel=alert_dict[id]["channel"], message_ts=alert_dict[id]["ts"])
+        self.slack_client.chat_update(channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="TheHive SLA Monitor: Case Promoted", blocks=slack_bot_alert_notice_update(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
+        self.slack_client.chat_getPermalink(channel=alert_dict[id]["channel"], message_ts=alert_dict[id]["ts"])
