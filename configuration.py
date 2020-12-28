@@ -1,7 +1,7 @@
 # Defined SLA Limits in int: seconds
 
 SLA_SETTINGS = {
-    'LOW_SEVERITY': 50, # 1800
+    'LOW_SEVERITY': 50,  # 1800
     'MEDIUM_SEVERITY': 2700,
     'HIGH_SEVERITY': 3600
 }
@@ -10,7 +10,7 @@ SYSTEM_SETTINGS = {
     'HIVE_SERVER_IP': '192.168.1.15',
     'HIVE_SERVER_PORT': 9000,
     'HIVE_FQDN': 'http://192.168.1.15',
-    'HIVE_API_KEY' : 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',
+    'HIVE_API_KEY': 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',
     'LOG_FILE_LOCATION': 'debug.log'
 }
 
