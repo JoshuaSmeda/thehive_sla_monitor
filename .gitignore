@@ -5,3 +5,5 @@ thehive_sla_monitor.log
 env/*
 __pycache__/*
 .pytest_cache
+debug.log
+private

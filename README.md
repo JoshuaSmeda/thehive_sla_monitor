@@ -29,7 +29,7 @@ A log record is generated each transactional event which allows you to track and
 
 To do:
 
-Create a slack application to receive messages to your workspace <br>
+Create a slack application to receive messages to your workspace - follow this guide: https://github.com/slackapi/python-slack-sdk/blob/main/tutorial/01-creating-the-slack-app.md <br>
 Create a "echo" twimlet to playback a custom voice message when called by Twilio: https://www.twilio.com/labs/twimlets/echo <br>
 Create a twilio account to receive calls / sms's
 

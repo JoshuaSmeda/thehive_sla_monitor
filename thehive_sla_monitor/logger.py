@@ -1,6 +1,10 @@
 import logging
 import configuration
 
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 logging.root.handlers = []
 
 logging.basicConfig(

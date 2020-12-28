@@ -7,7 +7,7 @@ def slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age):
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "A new SLA breach has been raised:\n*<https://" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + "/hive/index.html|The Hive>*"
+            "text": "A new SLA breach has been raised:\n*<" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + ":" + str(configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT']) + "/index.html|The Hive>*"
           }
         },
         {
@@ -27,7 +27,7 @@ def slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age):
           "elements": [
           {
             "type": "button",
-            "url": "http://" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + ":3000/web_api/complete/" + id,
+            "url": configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + ":" + str(configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT']) + "/complete/" + id,
             "text": {
               "type": "plain_text",
               "text": "Promote To Case"
@@ -36,7 +36,7 @@ def slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age):
           },
           {
             "type": "button",
-            "url": "http://" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + ":3000/web_api/ignore/" + id,
+            "url": configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + ":" + str(configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT']) + "/ignore/" + id,
             "text": {
               "type": "plain_text",
               "text": "Ignore Case"
@@ -55,7 +55,7 @@ def slack_bot_alert_notice_update(id, rule_name, alert_date, alert_age):
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "A new SLA breach has been raised:\n*<https://" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + "/hive/index.html|The Hive>*"
+            "text": "A new SLA breach has been raised:\n*<https://" + configuration.SYSTEM_SETTINGS['HIVE_URL'] + "/hive/index.html|The Hive>*"
           }
         },
         {
@@ -87,7 +87,7 @@ def slack_bot_alert_notice_ignore(id, rule_name, alert_date, alert_age):
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "A new SLA breach has been raised:\n*<https://" + configuration.SYSTEM_SETTINGS['HIVE_FQDN'] + "/hive/index.html|The Hive>*"
+            "text": "A new SLA breach has been raised:\n*<https://" + configuration.SYSTEM_SETTINGS['HIVE_URL'] + "/hive/index.html|The Hive>*"
           }
         },
         {
