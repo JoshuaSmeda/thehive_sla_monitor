@@ -1,14 +1,16 @@
+"""
+This module handles the Slack configuration used by the program
+"""
 import configuration
 
 from slack import WebClient
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.slack.templates import slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
-
-from thehive_sla_monitor.alerter import *
+from thehive_sla_monitor.alerter import hive_30_dict, hive_30_list, hive_45_dict, hive_45_list, hive_60_dict, hive_60_list, ignore_list, alert_dict
 
 class Slack():
     def __init__(self):
-        slack_webhook_url = configuration.SLACK_SETTINGS['SLACK_WEBHOOK_URL']
+        # slack_webhook_url = configuration.SLACK_SETTINGS['SLACK_WEBHOOK_URL']
         self.slack_client = WebClient(configuration.SLACK_SETTINGS['SLACK_APP_TOKEN'])
         self.channel = configuration.SLACK_SETTINGS['SLACK_CHANNEL']
 
@@ -35,8 +37,9 @@ class Slack():
                 alert_dict[id] = {'channel': res['channel'],'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age }
 
     def slack_chat_update(self, id):
-        print(alert_dict)
-        print(id)
-        print(alert_dict[id]["ts"])
         self.slack_client.chat_update(channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="TheHive SLA Monitor: Case Promoted", blocks=slack_bot_alert_notice_update(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
         self.slack_client.chat_getPermalink(channel=alert_dict[id]["channel"], message_ts=alert_dict[id]["ts"])
+
+    def slack_chat_ignore(self, id):
+        self.slack_client.chat_update(channel=alert_dict[id]['channel'], ts=alert_dict[id]["ts"], text="TheHive SLA Monitor: Case Ignored", blocks=slack_bot_alert_notice_ignore(id, alert_dict[id]['rule_name'], alert_dict[id]['alert_date'], alert_dict[id]['alert_age']))
+        self.slack_client.chat_getPermalink(channel=alert_dict[id]["channel"],message_ts=alert_dict[id]["ts"])
