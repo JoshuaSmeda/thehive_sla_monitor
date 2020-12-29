@@ -55,8 +55,8 @@ def is_empty(any_structure):
     """
     if any_structure:
         return False
-  #  else:
-  #     return True
+    else:
+       return True
 
 
 def promote_to_case(case_id):

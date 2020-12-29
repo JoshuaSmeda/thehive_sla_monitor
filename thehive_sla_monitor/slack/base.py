@@ -1,9 +1,11 @@
+"""
+This module handles the Slack configuration used by the program
+"""
 import configuration
 
 from slack import WebClient
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.slack.templates import slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
-
 from thehive_sla_monitor.alerter import hive_30_dict, hive_30_list, hive_45_dict, hive_45_list, hive_60_dict, hive_60_list, ignore_list, alert_dict
 
 class Slack():
