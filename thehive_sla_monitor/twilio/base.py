@@ -51,7 +51,7 @@ class Twilio():
                     msg_body = 'Please attend immediately!'
 
                 twilio_msg_body = 'TheHive SLA Breach Detected. Alert_ID: %s.\nAdditional Information: %s' % (alert_id, msg_body)
-                
+
                 if len(self.recipient) > 1:  # More than 1 recipient specified
                     for person in self.recipient:
                         message = self.twilio_client.messages.create(body=twilio_msg_body, from_=self.sender, to=person)
