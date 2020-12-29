@@ -14,6 +14,7 @@ from thehive_sla_monitor.flask import app
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.alerter import Alerter
 from thehive_sla_monitor.slack.base import Slack
+from thehive_sla_monitor.twilio.base import Twilio
 
 # Define variables
 HIVE_SERVER_IP = configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP']
@@ -27,6 +28,7 @@ Define SLA tiers by collecting from configuration.py
 LOWSEV = configuration.SLA_SETTINGS['LOW_SEVERITY']
 MEDSEV = configuration.SLA_SETTINGS['MEDIUM_SEVERITY']
 HIGHSEV = configuration.SLA_SETTINGS['HIGH_SEVERITY']
+
 
 def severity_switch(i):
     """
@@ -59,8 +61,7 @@ class EscalationSelector:
         logging.warning('LowSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
         Alerter().add_to_30_dict(alert_id, rule_name)
         Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-
-        # send_sms(*args)
+        Twilio().send_sms(*args)
 
     @classmethod
     def medium_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
@@ -70,8 +71,7 @@ class EscalationSelector:
         logging.warning('MediumSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
         Alerter().add_to_45_dict(alert_id, rule_name)
         Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        # slack_bot_notice_alert(channel, id, rule_name, alert_date, alert_age)
-        # make_call(id)
+        Twilio().make_call(alert_id)
 
     @classmethod
     def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
@@ -81,7 +81,7 @@ class EscalationSelector:
         logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
         Alerter().add_to_60_dict(alert_id, rule_name)
         Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        # make_escalated_call(id)
+        # Twilio Make Escalated Call
 
 
 def thehive_search(title, query):

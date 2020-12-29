@@ -14,7 +14,7 @@ headers = {
     'Content-Type': 'application/json',
 }
 
-data = '{ "title": "New Alert", "description": "N/A", "type": "external", "source": \
+data = '{ "title": "Test Alert", "description": "N/A", "type": "external", "source": \
         "instance1", "sourceRef": "%s", "severity": 3 }' % seed
 
 response = requests.post('http://%s:%d/api/alert' % (hive_server_ip, hive_server_port), headers=headers, data=data)

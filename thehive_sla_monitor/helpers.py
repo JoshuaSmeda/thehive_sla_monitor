@@ -20,6 +20,7 @@ HIVE_SERVER_PORT = configuration.SYSTEM_SETTINGS['HIVE_SERVER_PORT']
 HIVE_API_KEY = configuration.SYSTEM_SETTINGS['HIVE_API_KEY']
 HIVE_API = TheHiveApi("http://%s:%s" % (HIVE_SERVER_IP, HIVE_SERVER_PORT), HIVE_API_KEY)
 
+
 def clean_ignore_list(alert_id):
     """
     This method clears the ignore_list after 30 minutes.
@@ -35,7 +36,7 @@ def add_to_temp_ignore(alert_id):
     """
     logging.info("Adding %s to ignore list" % alert_id)
     ignore_list.append(alert_id)
-    ignore_thread = threading.Thread(target=clean_ignore_list)
+    ignore_thread = threading.Thread(target=clean_ignore_list, args=(alert_id,))
     ignore_thread.start()
     return alert_id
 
@@ -47,16 +48,6 @@ def add_to_called_list(alert_id):
     logging.info("Adding %s to called list" % alert_id)
     called_list.append(alert_id)
     return alert_id
-
-
-def is_empty(any_structure):
-    """
-    This method checks whether an object is empty
-    """
-    if any_structure:
-        return False
-    else:
-       return True
 
 
 def promote_to_case(case_id):
