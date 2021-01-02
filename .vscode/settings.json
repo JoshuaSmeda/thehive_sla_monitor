@@ -1,0 +1,10 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.pythonPath": "/usr/bin/python3",
+    "python.linting.flake8Args": [
+        "--max-line-length=215",
+        "--ignore=E402,F841,F401,E302,E305",
+    ],
+}

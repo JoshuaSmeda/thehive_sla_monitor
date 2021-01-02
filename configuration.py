@@ -1,23 +1,33 @@
+SLA_SETTINGS = {
+    'LOW_SEVERITY': 1800,
+    'MEDIUM_SEVERITY': 2700,
+    'HIGH_SEVERITY': 3600
+}
+
 SYSTEM_SETTINGS = {
-    'HIVE_SERVER_IP': 'hiveurl.domain.com',
+    'HIVE_SERVER_IP': '192.168.1.15',
     'HIVE_SERVER_PORT': 9000,
-    'HIVE_URL': 'https://hiveurl.domain.com',
-    'HIVE_API_KEY' : '15015015agmagomag051015',
-    'LOG_FILE_LOCATION': 'thehive_sla_monitor.debug.log',
-    'FLASK_WEBSERVER_IP': '192.168.1.2',
-    'FLASK_WEBSERVER_PORT': 3000,
+    'HIVE_FQDN': 'http://192.168.1.15',
+    'HIVE_API_KEY': 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',
+    'LOG_FILE_LOCATION': 'debug.log'
+}
+
+FLASK_SETTINGS = {
+    'ENABLE_WEBSERVER': True,
+    'FLASK_WEBSERVER_IP': '192.168.1.200',
+    'FLASK_WEBSERVER_PORT': 3000
 }
 
 TWILIO_SETTINGS = {
-    'TWILIO_SENDER': '+000000000',
-    'TWILIO_RTCP': '+0000000000',
-    'ACCOUNT_SID': 'Aagiant0105101501551',
-    'AUTH_TOKEN': '21510515mlagagotg',
-    'TWIMLET_URL': 'http://twimlet.domain.com',
+    'TWILIO_SENDER': '+123456789',
+    'TWILIO_RTCP': ['+123456789', '+123456789'],
+    'ACCOUNT_SID': '',
+    'AUTH_TOKEN': '',
+    'TWIMLET_URL': 'http://twimlets.com/echo?Twiml=%3CResponse%3E%3CSay%3EHi+there.%3C%2FSay%3E%3C%2FResponse%3E'
 }
 
 SLACK_SETTINGS = {
-    'SLACK_APP_TOKEN': 'test',
-    'SLACK_CHANNEL' : 'test',
-    'SLACK_WEBHOOK_URL': 'test',
+    'SLACK_APP_TOKEN': '',
+    'SLACK_CHANNEL': '',
+    'SLACK_WEBHOOK_URL': ''
 }

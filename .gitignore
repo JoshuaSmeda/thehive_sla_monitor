@@ -1,6 +1,11 @@
 *.pyc
 logs/*
 thehive_sla_monitor/*.pyc
-thehive_sla_monitor.debug.log
+thehive_sla_monitor.log
 env/*
 __pycache__/*
+.pytest_cache
+debug.log
+private
+.pylintrc
+.vscode
