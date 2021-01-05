@@ -26,6 +26,121 @@ Each alert will create a slack notice that allows you to promote to case or igno
 
 A log record is generated each transactional event which allows you to track and audit events.
 
+
+## Configuration parameters:
+
+The `configuration.py` is utilized as a central location to modify functionality and parameters related to the program. Such as, changing the severity level you wish to search TheHive for, or adjusting the SLA timers you wish to poll at. 
+
+The following explains the parameters accepted:
+
+```
+
+SLA_SETTINGS = {
+     # Int: seconds to classify the age of a low severity SLA breach in the form of seconds
+     # Note: Do not adjust the key name as it's used in conjunction with a switch case function within the program.
+
+    'LOW_SEVERITY': 1800,
+    'MEDIUM_SEVERITY': 2700,
+    'HIGH_SEVERITY': 3600
+}
+
+SYSTEM_SETTINGS = {
+    'SEVERITY_LEVEL': 3,  # Int: The TheHive severity level you wish to query for. # Low = 1, Medium = 2, High = 3
+    'HIVE_SERVER_IP': '192.168.1.15',  # String: The server IP or functioning DNS name of the TheHive instance you would like to query.
+    'HIVE_SERVER_PORT': 9000,  # Int: The TheHive port that's exposed to the instance this program will be running from.
+    'HIVE_FQDN': 'http://192.168.1.15',  # String: The FQDN of the TheHive instance.
+    'HIVE_API_KEY': 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',  # String: The TheHive API key generated for the API user you created.
+    'LOG_FILE_LOCATION': 'debug.log'  # String: The file location where you would like to store your logs. You can specify a file path as well.
+}
+
+FLASK_SETTINGS = {
+    'ENABLE_WEBSERVER': True,  # Boolean: Toggle to enable Flask to enrich the Slack integration. Set to False to disable.
+    'FLASK_WEBSERVER_IP': '192.168.1.200',  # String: The IP of the instance you running this program on (will act as a webserver so needs to be reachable).
+    'FLASK_WEBSERVER_PORT': 3000  # Int: The webserver port you wish to expose Flask on.
+}
+
+TWILIO_SETTINGS = {
+    'TWILIO_ENABLED': True,  # Boolean: Toggle to enable Twilio functionality. Set to False to disable.
+    'TWILIO_SENDER': '+123456789',  # String: The Twilio number you wish to send from. Obtain from your Twilio console.
+    'TWILIO_RTCP': ['+123456789', '+123456789'],  # List: A list of numbers you wish to send notifications via Twilio to.
+    'ACCOUNT_SID': '',  # String: Your Twilio account SID. Obtain from Twilio console.
+    'AUTH_TOKEN': '',  # String: Your Twilio auth token. Obtain from Twilio console.
+    'TWIMLET_URL': 'http://twimlets.com/echo?Twiml=%3CResponse%3E%3CSay%3EHi+there.%3C%2FSay%3E%3C%2FResponse%3E'  # String: The FQDN to your custom Twimlet if you have one hosted. Create one here: https://www.twilio.com/labs/twimlets/echo.
+}
+
+SLACK_SETTINGS = {
+    'SLACK_ENABLED': True,  # Boolean: Toggle to enable Slack functionality. Set to False to disable.
+    'SLACK_APP_TOKEN': '',  # String: Your Slack application token. Obtain from your Slack console.
+    'SLACK_CHANNEL': '',  # String: Your Slack application channel ID. Obtain from your Slack instance.
+    'SLACK_WEBHOOK_URL': ''  String: Your Slack application webhook URL you generated. Obtain frmo your Slack instance.
+}
+```
+
+
+## Adjust what gets alerted on:
+
+If you wish to adjust / add / remove what happens when a alert hits a specified SLA tier and the alert method that gets triggered (i.e, send via Twilio / send via Slack). You can adjust the definitions under the `classmethods` within `main.py`
+
+Existing configuration for reference to compare with below:
+
+```
+class EscalationSelector:
+    """
+    Dynamically escalate Hive alerts based on configured severity
+    """
+    @classmethod
+    def escalate(cls, severity, *args, **kwargs):
+        """
+        This classmethod executes the approriate classmethod based on the providers severity attribute.
+        """
+        getattr(cls, f'{severity}')(*args, **kwargs)
+
+    @classmethod
+    def low_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        """
+        This classmethod alerts via Slack and sends an SMS to the person currently "on-call".
+        """
+        logging.warning('LowSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
+        Alerter().add_to_30_dict(alert_id, rule_name)
+        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+        Twilio().send_sms(*args)
+
+    @classmethod
+    def medium_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        """
+        This classmethod alerts via Slack and makes a call to the person currently "on-call".
+        """
+        logging.warning('MediumSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
+        Alerter().add_to_45_dict(alert_id, rule_name)
+        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+        Twilio().make_call(alert_id)
+
+    @classmethod
+    def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        """
+        This classmethod alerts via Slack and makes an escalated call once this tier is reached.
+        """
+        logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
+        Alerter().add_to_60_dict(alert_id, rule_name)
+        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+
+```
+
+For example:
+
+Removing `Slack` posting for `high_severity` alerts:
+
+```
+@classmethod
+def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+  """
+  This classmethod alerts via Slack and makes an escalated call once this tier is reached.
+  """
+  logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
+  Alerter().add_to_60_dict(alert_id, rule_name)
+  # Removed the Slack function reference!
+```
+
 ## How to install:
 
 To do:

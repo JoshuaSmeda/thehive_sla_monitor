@@ -11,8 +11,12 @@ from thehive_sla_monitor.alerter import hive_30_dict, hive_30_list, hive_45_dict
 
 class Slack():
     def __init__(self):
-        self.slack_client = WebClient(configuration.SLACK_SETTINGS['SLACK_APP_TOKEN'])
-        self.channel = configuration.SLACK_SETTINGS['SLACK_CHANNEL']
+        if configuration.SLACK_SETTINGS['SLACK_ENABLED']:
+            self.slack_client = WebClient(configuration.SLACK_SETTINGS['SLACK_APP_TOKEN'])
+            self.channel = configuration.SLACK_SETTINGS['SLACK_CHANNEL']
+        else:
+            logging.error("Slack is currently disabled. Please enable via configuration.py. Exiting!")
+            quit()
 
     def post_notice(self, id, rule_name, alert_date, alert_age):
         for k, v in hive_30_dict.items():

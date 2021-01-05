@@ -89,6 +89,7 @@ def thehive_search(title, query):
     This method queries TheHive for alerts, performs timestamp checks and
     alerts based on the severity tiers reached.
     """
+    logging.info("Severity level set to %s. Please ensure this is intended." % configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'])
     current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
     response = HIVE_API.find_alerts(query=query)
@@ -97,7 +98,7 @@ def thehive_search(title, query):
         data = json.dumps(response.json())
         jdata = json.loads(data)
         for element in jdata:
-            if element['severity'] == 3:
+            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL']:
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000
                 alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -137,7 +138,7 @@ def thehive():
             logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
         print("Run completed. Re-polling in 2 minutes.")
-        t.sleep(120)
+        t.sleep(20)
 
 
 def spawn_webserver():

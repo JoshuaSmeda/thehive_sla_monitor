@@ -14,10 +14,14 @@ from thehive_sla_monitor.alerter import hive_30_dict, hive_30_list, hive_45_list
 
 class Twilio():
     def __init__(self):
-        self.twimlet = configuration.TWILIO_SETTINGS['TWIMLET_URL']
-        self.twilio_client = Client(configuration.TWILIO_SETTINGS['ACCOUNT_SID'], configuration.TWILIO_SETTINGS['AUTH_TOKEN'])
-        self.sender = configuration.TWILIO_SETTINGS['TWILIO_SENDER']
-        self.recipient = configuration.TWILIO_SETTINGS['TWILIO_RTCP']
+        if configuration.TWILIO_SETTINGS['TWILIO_ENABLED']:
+            self.twimlet = configuration.TWILIO_SETTINGS['TWIMLET_URL']
+            self.twilio_client = Client(configuration.TWILIO_SETTINGS['ACCOUNT_SID'], configuration.TWILIO_SETTINGS['AUTH_TOKEN'])
+            self.sender = configuration.TWILIO_SETTINGS['TWILIO_SENDER']
+            self.recipient = configuration.TWILIO_SETTINGS['TWILIO_RTCP']
+        else:
+            logging.error("Twilio is currently disabled. Please enable via configuration.py. Exiting!")
+            quit()
 
     def send_truncated_message(self, twilio_msg_body):
         if len(self.recipient) > 1:  # More than 1 recipient specified
@@ -65,7 +69,6 @@ class Twilio():
                                 x = alert_json['artifacts'][element]['data']
                                 artifact_arr.append(x)
 
-                            print(artifact_arr)
                             msg_body = " ".join(artifact_arr)
 
                             """
@@ -84,7 +87,7 @@ class Twilio():
                         msg_body = msg_header
                         
                         total_characters = char_count(msg_body)
-                        print("Total message character size: %s" % total_characters)
+                        logging.info("Total message character size: %s" % total_characters)
                         """
                         Handling Twilio SMS character limit of 160. Cut up if necessary! (Takes into account extra trial message text)
                         """
@@ -93,12 +96,12 @@ class Twilio():
 
                         else:  # Start cutting message up!
                             total_msgs_necessary = (get_total_msgs_necessary(msg_body))
-                            print("Total number of messages: %s" % total_msgs_necessary)
+                            logging.info("Total number of messages: %s" % total_msgs_necessary)
                             total_msgs_necessary = (get_total_msgs_necessary(msg_body))
 
                             words_per_message = total_characters / get_total_msgs_necessary(msg_body)
                             words_per_message = round(words_per_message)
-                            print("Words per message: %s" % words_per_message)
+                            logging.info("Words per message: %s" % words_per_message)
 
                             out = [(msg_body[i:i + words_per_message]) for i in range(0, len(msg_body), words_per_message)]
                             count = 0
