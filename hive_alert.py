@@ -1,8 +1,6 @@
-import requests
 import configuration
 import sys
 import json
-import time
 import uuid
 from thehive4py.api import TheHiveApi
 from thehive4py.models import Alert, AlertArtifact, CustomFieldHelper
@@ -42,7 +40,7 @@ alert = Alert(title='New Alert',
 try:
     response = api.create_alert(alert)
 
-    # Print the JSON response 
+    # Print the JSON response
     print(json.dumps(response.json(), indent=4, sort_keys=True))
 
 except Exception as e:

@@ -2,8 +2,6 @@
 This module is responsible for handling all Twilio integration.
 """
 import json
-import re
-import itertools
 from twilio.rest import Client
 
 # Custom Imports
@@ -85,7 +83,7 @@ class Twilio():
 
                         msg_header = 'TheHive SLA Breach - %s.\nAdditional Information: %s' % (alert_id, msg_body)
                         msg_body = msg_header
-                        
+
                         total_characters = char_count(msg_body)
                         logging.info("Total message character size: %s" % total_characters)
                         """
