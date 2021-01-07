@@ -84,6 +84,11 @@ class EscalationSelector:
         # Twilio Make Escalated Call
 
 
+def temp_func():
+  pass
+  # check to see if configuration is enabled. Need to be able to handle multiple severity check 
+
+
 def thehive_search(title, query):
     """
     This method queries TheHive for alerts, performs timestamp checks and

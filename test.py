@@ -1,7 +1,13 @@
 import configuration
 
-print(configuration.SLA_SETTINGS)
+config = configuration.SLA_SETTINGS
 
-if configuration.SLA_SETTINGS['SEVERITY_1']['ENABLED'] == True:
-  print("YEA")
-  print("timer for low is set to %s" % configuration.SLA_SETTINGS['SEVERITY_1']['LOW_SEVERITY']['TIMER'])
+
+for x in config:
+    for e in config[x]:
+      if e == 'ENABLED':
+        for f in config[x]:
+          if f == 'ENABLED':
+            continue
+          for z in config[x][f]:
+            print(config[x][f][z])
