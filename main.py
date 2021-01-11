@@ -95,6 +95,7 @@ def thehive_search(title, query):
     current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
     response = HIVE_API.find_alerts(query=query)
+    high_esc_list = []
 
     if response.status_code == 200:
         data = json.dumps(response.json())
@@ -108,7 +109,9 @@ def thehive_search(title, query):
                 diff = (current_date - alert_date)
                 EscalationSelector.escalate(severity_switch(3), element['id'], element['title'], str(alert_date), str(diff), element)
                 Alerter().add_to_60m(element['id'])
-            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL']:
+                high_esc_list.append(element['id'])
+
+            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'] and element['id'] not in high_esc_list:
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000
                 alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
