@@ -75,7 +75,6 @@ def high_risk_escalate(alert):
         artifact_arr = []
         for element in range(len(alert['artifacts'])):
             x = alert['artifacts'][element]['data']
-            x.upper()
             artifact_arr.append(x)
 
     for word in configuration.SLA_SETTINGS['HIGH_RISK_WORDS']:
