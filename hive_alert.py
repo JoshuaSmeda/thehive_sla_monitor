@@ -14,8 +14,8 @@ api = TheHiveApi("http://%s:%s" % (HIVE_SERVER_IP, HIVE_SERVER_PORT), HIVE_API_K
 # Prepare observables
 artifacts = [
     AlertArtifact(dataType='ip', data='8.8.8.8'),
-    AlertArtifact(dataType='domain', data='google.com'),
-    AlertArtifact(dataType='domain', data='pic.png'),
+    AlertArtifact(dataType='domain', data='Dog'),
+    AlertArtifact(dataType='domain', data='TEST'),
     AlertArtifact(dataType='domain', data='sample.txt', sighted=True, ioc=True)
 ]
 
@@ -25,7 +25,7 @@ customFields = CustomFieldHelper()\
 
 # Prepare the sample Alert
 sourceRef = str(uuid.uuid4())[0:6]
-alert = Alert(title='New Alert',
+alert = Alert(title='Test1',
               tlp=3,
               severity=3,
               tags=['TheHive4Py', 'sample'],

@@ -15,6 +15,7 @@ from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.alerter import Alerter
 from thehive_sla_monitor.slack.base import Slack
 from thehive_sla_monitor.twilio.base import Twilio
+from thehive_sla_monitor.helpers import high_risk_escalate
 
 # Define variables
 HIVE_SERVER_IP = configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP']
@@ -81,6 +82,7 @@ class EscalationSelector:
         logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
         Alerter().add_to_60_dict(alert_id, rule_name)
         Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+        Twilio().make_call(alert_id)
         # Twilio Make Escalated Call
 
 
@@ -98,6 +100,14 @@ def thehive_search(title, query):
         data = json.dumps(response.json())
         jdata = json.loads(data)
         for element in jdata:
+            if high_risk_escalate(element):
+                timestamp = int(element['createdAt'])
+                timestamp /= 1000
+                alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
+                diff = (current_date - alert_date)
+                EscalationSelector.escalate(severity_switch(3), element['id'], element['title'], str(alert_date), str(diff), element)
+                Alerter().add_to_60m(element['id'])
             if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL']:
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000

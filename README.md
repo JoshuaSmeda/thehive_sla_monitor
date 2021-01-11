@@ -41,7 +41,8 @@ SLA_SETTINGS = {
 
     'LOW_SEVERITY': 1800,
     'MEDIUM_SEVERITY': 2700,
-    'HIGH_SEVERITY': 3600
+    'HIGH_SEVERITY': 3600,
+    'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
 }
 
 SYSTEM_SETTINGS = {

@@ -64,6 +64,7 @@ def promote_to_case(case_id):
     else:
         logging.error('TheHive: {}/{}'.format(response.status_code, response.text))
 
+
 def high_risk_escalate(alert):
     """
     This method accepts an alert, performs checks against the data and if there is a title or artifact that has a high risk word in it,
