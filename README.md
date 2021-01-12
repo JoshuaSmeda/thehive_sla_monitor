@@ -168,7 +168,7 @@ server {
 
 ```
 
-Alternatively you can use ```ngrok.com``` to tunnel if you do not wish to use a webserver. This is discoraged due to the potential security risks associated.
+Alternatively you can use ```ngrok.com``` to tunnel if you do not wish to use a webserver. This is discouraged due to the potential security risks associated with this.
 
 ## Create sysinitv service on Linux (Debian):
 
