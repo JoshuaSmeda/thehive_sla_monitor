@@ -2,16 +2,14 @@
 This module provides helper functions that is used throughout this program.
 """
 import json
-import time as t
 import threading
-
-# TheHive Imports
-from thehive4py.api import TheHiveApi
+import time as t
 
 # Custom Imports
 import configuration
+from thehive4py.api import TheHiveApi
+from thehive_sla_monitor.alerter import called_list, ignore_list
 from thehive_sla_monitor.logger import logging
-from thehive_sla_monitor.alerter import ignore_list, called_list
 
 # Defining variables
 
@@ -63,3 +61,50 @@ def promote_to_case(case_id):
         return case_id
     else:
         logging.error('TheHive: {}/{}'.format(response.status_code, response.text))
+
+
+def high_risk_escalate(alert):
+    """
+    This method accepts an alert, performs checks against the data and if there is a title or artifact that has a high risk word in it,
+    return True
+    """
+    high_risk_detected = False
+    if len(alert['artifacts']) >= 1:  # Check to see if artifact has data
+        artifact_arr = []
+        for element in range(len(alert['artifacts'])):
+            x = alert['artifacts'][element]['data']
+            artifact_arr.append(x)
+
+    for word in configuration.SLA_SETTINGS['HIGH_RISK_WORDS']:
+        if any(word.lower() in s.lower() for s in artifact_arr):
+            high_risk_detected = True
+        elif word.lower() in alert['title'].lower():
+            high_risk_detected = True
+    if high_risk_detected:
+        return True
+    else:
+        return False
+
+def get_active_sla(dct):
+    active_dicts = []
+    for obj in dct:
+        if dct[obj]['ENABLED']:
+            active_dicts.append(obj)
+
+    return active_dicts
+
+
+def get_sla_data(dct, obj):
+    dct = {}
+    keys = []
+    for element in dct[obj]:
+        if 'ENABLED' in element:
+            continue  # Skip enabled obj
+        keys.append(element)
+    for k in keys:
+        dct[k] = {'TIMER': dct[obj][k]['TIMER'], 'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
+
+    tuple_obj = ()
+    for x in dct:
+        tuple_obj += (dct[x],)
+    return tuple_obj

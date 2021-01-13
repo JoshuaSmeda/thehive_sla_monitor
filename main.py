@@ -15,6 +15,7 @@ from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.alerter import Alerter
 from thehive_sla_monitor.slack.base import Slack
 from thehive_sla_monitor.twilio.base import Twilio
+from thehive_sla_monitor.helpers import high_risk_escalate, get_active_sla, get_sla_data
 
 # Define variables
 HIVE_SERVER_IP = configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP']
@@ -25,9 +26,10 @@ HIVE_API = TheHiveApi("http://%s:%s" % (HIVE_SERVER_IP, HIVE_SERVER_PORT), HIVE_
 """
 Define SLA tiers by collecting from configuration.py
 """
-LOWSEV = configuration.SLA_SETTINGS['LOW_SEVERITY']
-MEDSEV = configuration.SLA_SETTINGS['MEDIUM_SEVERITY']
-HIGHSEV = configuration.SLA_SETTINGS['HIGH_SEVERITY']
+# needs to move out
+# LOWSEV = configuration.SLA_SETTINGS['LOW_SEVERITY']
+# MEDSEV = configuration.SLA_SETTINGS['MEDIUM_SEVERITY']
+# HIGHSEV = configuration.SLA_SETTINGS['HIGH_SEVERITY']
 
 
 def severity_switch(i):
@@ -81,13 +83,17 @@ class EscalationSelector:
         logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
         Alerter().add_to_60_dict(alert_id, rule_name)
         Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+        Twilio().make_call(alert_id)
         # Twilio Make Escalated Call
 
 
 def temp_func():
-  pass
-  # check to see if configuration is enabled. Need to be able to handle multiple severity check 
-
+    for obj in get_active_sla(configuration.SLA_SETTINGS):
+        print("Returning configuration for %s" % obj)
+        l, m, x = get_sla_data(configuration.SLA_SETTINGS, obj)
+        print(l)
+        print(m)
+        print(x)
 
 def thehive_search(title, query):
     """
@@ -98,12 +104,23 @@ def thehive_search(title, query):
     current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
     response = HIVE_API.find_alerts(query=query)
+    high_esc_list = []
 
     if response.status_code == 200:
         data = json.dumps(response.json())
         jdata = json.loads(data)
         for element in jdata:
-            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL']:
+            if high_risk_escalate(element):
+                timestamp = int(element['createdAt'])
+                timestamp /= 1000
+                alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
+                diff = (current_date - alert_date)
+                EscalationSelector.escalate(severity_switch(3), element['id'], element['title'], str(alert_date), str(diff), element)
+                Alerter().add_to_60m(element['id'])
+                high_esc_list.append(element['id'])
+
+            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'] and element['id'] not in high_esc_list:
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000
                 alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -138,12 +155,13 @@ def thehive():
     """
     while True:
         try:
-            thehive_search('Formatted DATA:', Eq('status', 'New'))
+            temp_func()
+#            thehive_search('Formatted DATA:', Eq('status', 'New'))
         except Exception as err:
             logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
         print("Run completed. Re-polling in 2 minutes.")
-        t.sleep(20)
+        t.sleep(120)
 
 
 def spawn_webserver():
