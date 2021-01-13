@@ -63,3 +63,26 @@ def promote_to_case(case_id):
         return case_id
     else:
         logging.error('TheHive: {}/{}'.format(response.status_code, response.text))
+
+
+def high_risk_escalate(alert):
+    """
+    This method accepts an alert, performs checks against the data and if there is a title or artifact that has a high risk word in it,
+    return True
+    """
+    high_risk_detected = False
+    if len(alert['artifacts']) >= 1:  # Check to see if artifact has data
+        artifact_arr = []
+        for element in range(len(alert['artifacts'])):
+            x = alert['artifacts'][element]['data']
+            artifact_arr.append(x)
+
+    for word in configuration.SLA_SETTINGS['HIGH_RISK_WORDS']:
+        if any(word.lower() in s.lower() for s in artifact_arr):
+            high_risk_detected = True
+        elif word.lower() in alert['title'].lower():
+            high_risk_detected = True
+    if high_risk_detected:
+        return True
+    else:
+        return False
