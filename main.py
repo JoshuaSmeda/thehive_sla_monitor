@@ -56,6 +56,21 @@ class EscalationSelector:
         getattr(cls, f'{severity}')(*args, **kwargs)
 
     @classmethod
+    def Alert_Slack(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        """
+        This classmethod alerts via Slack and sends an SMS to the person currently "on-call".
+        """
+        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
+
+    @classmethod
+    def Alert_Twilio_SMS(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        Twilio().send_sms(*args)
+
+    @classmethod
+    def Alert_Twilio_Call(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
+        Twilio().make_call(alert_id)
+
+    @classmethod
     def low_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
         """
         This classmethod alerts via Slack and sends an SMS to the person currently "on-call".
@@ -87,13 +102,24 @@ class EscalationSelector:
         # Twilio Make Escalated Call
 
 
-def temp_func():
-    for obj in get_active_sla(configuration.SLA_SETTINGS):
-        print("Returning configuration for %s" % obj)
-        l, m, x = get_sla_data(configuration.SLA_SETTINGS, obj)
-        print(l)
-        print(m)
-        print(x)
+def the_hive_mock():
+    """
+    to get a specifc config configuration
+    """
+    l, m, x = get_sla_data(configuration.SLA_SETTINGS, 'THEHIVE_LEVEL1')
+    print(l)
+    print(m)
+    print(x)
+    
+    # for obj in get_active_sla(configuration.SLA_SETTINGS):
+    #    print("Returning configuration for %s" % obj)
+    
+    #    l, m, x = get_sla_data(configuration.SLA_SETTINGS, obj)
+    #    print(l)
+    #    print(m)
+    #    print(x)
+
+    #    print(temp_func())
 
 def thehive_search(title, query):
     """
@@ -110,6 +136,7 @@ def thehive_search(title, query):
         data = json.dumps(response.json())
         jdata = json.loads(data)
         for element in jdata:
+            # High risk workflow
             if high_risk_escalate(element):
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000
@@ -120,6 +147,7 @@ def thehive_search(title, query):
                 Alerter().add_to_60m(element['id'])
                 high_esc_list.append(element['id'])
 
+            # Normal workflow
             if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'] and element['id'] not in high_esc_list:
                 timestamp = int(element['createdAt'])
                 timestamp /= 1000
@@ -155,7 +183,7 @@ def thehive():
     """
     while True:
         try:
-            temp_func()
+            the_hive_mock()
 #            thehive_search('Formatted DATA:', Eq('status', 'New'))
         except Exception as err:
             logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)

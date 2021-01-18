@@ -90,21 +90,20 @@ def get_active_sla(dct):
     for obj in dct:
         if dct[obj]['ENABLED']:
             active_dicts.append(obj)
-
     return active_dicts
 
 
 def get_sla_data(dct, obj):
-    dct = {}
+    data = {}
     keys = []
     for element in dct[obj]:
         if 'ENABLED' in element:
             continue  # Skip enabled obj
         keys.append(element)
     for k in keys:
-        dct[k] = {'TIMER': dct[obj][k]['TIMER'], 'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
+        data[k] = {'TIMER': dct[obj][k]['TIMER'], 'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
 
     tuple_obj = ()
-    for x in dct:
-        tuple_obj += (dct[x],)
+    for x in data:
+        tuple_obj += (data[x],)
     return tuple_obj
