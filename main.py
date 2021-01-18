@@ -106,10 +106,10 @@ def the_hive_mock():
     """
     to get a specifc config configuration
     """
-    l, m, x = get_sla_data(configuration.SLA_SETTINGS, 'THEHIVE_LEVEL1')
-    print(l)
-    print(m)
-    print(x)
+    # l, m, x = get_sla_data(configuration.SLA_SETTINGS, 'THEHIVE_LEVEL1')
+    # print(l)
+    # print(m)
+    # print(x)
     
     # for obj in get_active_sla(configuration.SLA_SETTINGS):
     #    print("Returning configuration for %s" % obj)
@@ -126,7 +126,7 @@ def thehive_search(title, query):
     This method queries TheHive for alerts, performs timestamp checks and
     alerts based on the severity tiers reached.
     """
-    logging.info("Severity level set to %s. Please ensure this is intended." % configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'])
+    # logging.info("Severity level set to %s. Please ensure this is intended." % configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'])
     current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
     response = HIVE_API.find_alerts(query=query)
@@ -135,41 +135,61 @@ def thehive_search(title, query):
     if response.status_code == 200:
         data = json.dumps(response.json())
         jdata = json.loads(data)
-        for element in jdata:
-            # High risk workflow
-            if high_risk_escalate(element):
-                timestamp = int(element['createdAt'])
+        for hive_alert in jdata:
+            """
+            Immediately escalate if alert contains a word within the bad word list
+            """
+            if high_risk_escalate(hive_alert):
+                timestamp = int(hive_alert['createdAt'])
                 timestamp /= 1000
                 alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
                 alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
                 diff = (current_date - alert_date)
-                EscalationSelector.escalate(severity_switch(3), element['id'], element['title'], str(alert_date), str(diff), element)
-                Alerter().add_to_60m(element['id'])
-                high_esc_list.append(element['id'])
+                # EscalationSelector.escalate(severity_switch(3), hive_alert['id'], hive_alert['title'], str(alert_date), str(diff), hive_alert)
+                # Alerter().add_to_60m(hive_alert['id'])
+                # high_esc_list.append(hive_alert['id'])
 
             # Normal workflow
-            if element['severity'] == configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'] and element['id'] not in high_esc_list:
-                timestamp = int(element['createdAt'])
+            if hive_alert['id'] not in high_esc_list:
+                timestamp = int(hive_alert['createdAt'])
                 timestamp /= 1000
                 alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-                logging.info('Query TheHive found - ID: {id}. Title: {t}. Alert Date: {d}'.format(id=element['id'], t=element['title'], d=str(alert_date)))
+                logging.info('Query TheHive found - ID: {id}. Title: {t}. Alert Date: {d}'.format(id=hive_alert['id'], t=hive_alert['title'], d=str(alert_date)))
                 alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
                 diff = (current_date - alert_date)
 
+                """
+                Determine whether the hive alert is active so we can check against it via this function
+                """
+                for obj in get_active_sla(configuration.SLA_SETTINGS):
+                    print(obj)
+
+                """
+                if this active, do checks against the data
+                """
+
+                # Tier 1 check:
+                l, m, x = get_sla_data(configuration.SLA_SETTINGS, 'THEHIVE_LEVEL1')
+                print(l)
+#                result = any(len(elem) >= 3 for elem in l)  # Checks to see if there isn't garbage in alerter function
+#                if result:
+#                    for item in alert_type:
+#                        print(item)
+
                 if LOWSEV < diff.total_seconds() and MEDSEV > diff.total_seconds():
-                    logging.warning("Breach: 30/M SLA: " + str(diff) + " " + element['id'])
-                    EscalationSelector.escalate(severity_switch(1), element['id'], element['title'], str(alert_date), str(diff), element)
-                    Alerter().add_to_30m(element['id'])
+                    logging.warning("Breach: 30/M SLA: " + str(diff) + " " + hive_alert['id'])
+                    EscalationSelector.escalate(severity_switch(1), hive_alert['id'], hive_alert['title'], str(alert_date), str(diff), hive_alert)
+                    Alerter().add_to_30m(hive_alert['id'])
 
                 elif MEDSEV < diff.total_seconds() and HIGHSEV > diff.total_seconds():
-                    logging.warning("Breach: 45/M SLA: " + str(diff) + " " + element['id'])
-                    EscalationSelector.escalate(severity_switch(2), element['id'], element['title'], str(alert_date), str(diff), element)
-                    Alerter().add_to_45m(element['id'])
+                    logging.warning("Breach: 45/M SLA: " + str(diff) + " " + hive_alert['id'])
+                    EscalationSelector.escalate(severity_switch(2), hive_alert['id'], hive_alert['title'], str(alert_date), str(diff), hive_alert)
+                    Alerter().add_to_45m(hive_alert['id'])
 
                 elif HIGHSEV < diff.total_seconds():
-                    logging.warning("Breach: 60/M SLA: " + str(diff) + " " + element['id'])
-                    EscalationSelector.escalate(severity_switch(3), element['id'], element['title'], str(alert_date), str(diff), element)
-                    Alerter().add_to_60m(element['id'])
+                    logging.warning("Breach: 60/M SLA: " + str(diff) + " " + hive_alert['id'])
+                    EscalationSelector.escalate(severity_switch(3), hive_alert['id'], hive_alert['title'], str(alert_date), str(diff), hive_alert)
+                    Alerter().add_to_60m(hive_alert['id'])
 
         print()
 
@@ -183,8 +203,8 @@ def thehive():
     """
     while True:
         try:
-            the_hive_mock()
-#            thehive_search('Formatted DATA:', Eq('status', 'New'))
+#            the_hive_mock()
+            thehive_search('Formatted DATA:', Eq('status', 'New'))
         except Exception as err:
             logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
