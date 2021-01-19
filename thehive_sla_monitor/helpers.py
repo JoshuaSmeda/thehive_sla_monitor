@@ -4,6 +4,7 @@ This module provides helper functions that is used throughout this program.
 import json
 import threading
 import time as t
+from datetime import datetime
 
 # Custom Imports
 import configuration
@@ -85,11 +86,28 @@ def high_risk_escalate(alert):
     else:
         return False
 
+def get_alert_timer(hive_alert):
+    """
+    This function takes in a hive_alert and performs a calculation to determine the alerts age based on the current datetime. We used this to check against SLA limits.
+    """
+    current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    current_date = datetime.strptime(current_date, '%Y-%m-%d %H:%M:%S')
+    timestamp = int(hive_alert['createdAt'])
+    timestamp /= 1000
+    alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
+    diff = (current_date - alert_date)
+    return alert_date, diff
+
+
 def get_active_sla(dct):
     active_dicts = []
     for obj in dct:
-        if dct[obj]['ENABLED']:
-            active_dicts.append(obj)
+        try:
+            if dct[obj]['ENABLED']:
+                active_dicts.append(obj)
+        except TypeError:
+            continue
     return active_dicts
 
 
