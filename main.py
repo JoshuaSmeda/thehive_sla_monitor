@@ -39,7 +39,7 @@ def severity_switch(i):
     switcher = {
         1: 'low_severity',
         2: 'medium_severity',
-        3: 'high_severity'
+        3: 'THEHIVE_LEVEL3'
     }
     return switcher.get(i, "Invalid severity selected")
 
@@ -128,30 +128,64 @@ def thehive_search(title, query):
     """
     # logging.info("Severity level set to %s. Please ensure this is intended." % configuration.SYSTEM_SETTINGS['SEVERITY_LEVEL'])
     response = HIVE_API.find_alerts(query=query)
-    high_esc_list = []
+    high_escalation_alerts = []
+    active_severities = []
 
     if response.status_code == 200:
         data = json.dumps(response.json())
         jdata = json.loads(data)
+        
+        for i in get_active_sla(configuration.SLA_SETTINGS):
+            # print(i)
+            active_severities.append(i)
+
         for hive_alert in jdata:
+            alert_date, time_diff = get_alert_timer(hive_alert)
+            logging.info('[*] TheHive Alert: Title: {t} ({id}). Created at {d}.'.format(id=hive_alert['id'], t=hive_alert['title'], d=str(alert_date)))
             if high_risk_escalate(hive_alert):
-                time_diff = get_alert_timer(hive_alert)
-                print(time_diff)
+                #print(time_diff)
+                #print(alert_date)
 
-                # EscalationSelector.escalate(severity_switch(3), hive_alert['id'], hive_alert['title'], str(alert_date), str(diff), hive_alert)
+                # EscalationSelector.escalate(severity_switch(3), hive_alert['id'], hive_alert['title'], str(alert_date), str(time_diff), hive_alert)
                 # Alerter().add_to_60m(hive_alert['id'])
-                # high_esc_list.append(hive_alert['id'])
-            
-            # Normal workflow
+                high_escalation_alerts.append(hive_alert['id'])
 
-            # if hive_alert['id'] not in high_esc_list:
-            #    print("wow")
-            #    timestamp = int(hive_alert['createdAt'])
-            #    timestamp /= 1000
-            #    alert_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-            #    logging.info('Query TheHive found - ID: {id}. Title: {t}. Alert Date: {d}'.format(id=hive_alert['id'], t=hive_alert['title'], d=str(alert_date)))
-            #    alert_date = datetime.strptime(alert_date, '%Y-%m-%d %H:%M:%S')
-            #    diff = (current_date - alert_date)
+            if hive_alert['id'] not in high_escalation_alerts:
+                print("handling if not high escalation")
+                #print(time_diff)
+                #print(alert_date)
+
+                # check if we must action this alert:
+                # step 1. check if sla level is enabled
+                # step 2. check sla timers
+                # step 3. alert based on sla levels
+
+                hive_alert_severity = hive_alert['severity']
+                """
+                This performs a check whether the severity level is enabled
+                """
+                if severity_switch(hive_alert_severity) in active_severities:
+                    LOW_SEV, MED_SEV, HIGH_SEV = get_sla_data(configuration.SLA_SETTINGS, severity_switch(hive_alert_severity))
+                    print(LOW_SEV['TIMER'])
+                    print(MED_SEV['TIMER'])
+                    print(time_diff)
+                    if LOW_SEV['TIMER'] < time_diff.total_seconds() and MED_SEV['TIMER'] > time_diff.total_seconds():
+                        logging.warning('Low Severity Breach (%s). Alert Age: %s' % (hive_alert['id'], time_diff))
+                        result = any(len(x) >= 3 for x in LOW_SEV['NOTIFICATION_METHOD'])
+                        if result:
+                            for x in LOW_SEV['NOTIFICATION_METHOD']:
+                                print(x)
+                        else:
+                            logging.error("Potentially garbage notification method in %s configuration. Please review!" % severity_switch(hive_alert_severity))
+
+                
+                
+                
+                
+                
+                
+                else:
+                    logging.info('%s has a severity level of %s which has not been enabled via configuration.py.' % (hive_alert['id'], hive_alert_severity))
 
                         # for obj in get_active_sla(configuration.SLA_SETTINGS):
             # l, m, x = get_sla_data(configuration.SLA_SETTINGS, obj)
