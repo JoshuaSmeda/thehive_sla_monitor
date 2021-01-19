@@ -4,12 +4,13 @@ This module provides helper functions that is used throughout this program.
 import json
 import threading
 import time as t
+import itertools
 from datetime import datetime
 
 # Custom Imports
 import configuration
 from thehive4py.api import TheHiveApi
-from thehive_sla_monitor.alerter import called_list, ignore_list
+from thehive_sla_monitor.alerter import called_list, ignore_list, low_sev_list, med_sev_list, high_sev_list, seen_list
 from thehive_sla_monitor.logger import logging
 
 # Defining variables
@@ -125,3 +126,27 @@ def get_sla_data(dct, obj):
     for x in data:
         tuple_obj += (data[x],)
     return tuple_obj
+
+def escalation_check(alert_id):
+    if alert_id in low_sev_list and alert_id in med_sev_list:
+        print("Removing alert from seen_list as it's moved up a tier")
+        seen_list.remove(alert_id)
+        low_sev_list.remove(alert_id)
+
+    elif alert_id in med_sev_list and alert_id in high_sev_list:
+        print("Removing alert from seen_list as it's moved a tier (2nd)")
+        seen_list.remove(alert_id)
+        med_sev_list.remove(alert_id)
+    else:
+        print('Nothing to change!!')
+
+
+#    print(set(low_sev_list).intersection(med_sev_list, high_sev_list))
+
+    #for aval, bval, cval in itertools.product(low_sev_list, med_sev_list, high_sev_list):
+    #    if aval == bval and bval == cval:
+    #        print(aval)
+
+    #print([i for i, j in zip(low_sev_list, med_sev_list) if i == j])
+
+    #[x for x in a if x in b]

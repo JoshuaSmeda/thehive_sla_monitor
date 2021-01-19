@@ -6,7 +6,7 @@ import configuration
 from slack import WebClient
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.slack.templates import slack_bot_alert_notice_template, slack_bot_alert_notice_update, slack_bot_alert_notice_ignore
-from thehive_sla_monitor.alerter import hive_30_dict, hive_30_list, hive_45_dict, hive_45_list, hive_60_dict, hive_60_list, ignore_list, alert_dict
+from thehive_sla_monitor.alerter import low_sev_dict, low_sev_list, med_sev_dict, med_sev_list, high_sev_dict, high_sev_list, ignore_list, alert_dict
 
 
 class Slack():
@@ -19,23 +19,23 @@ class Slack():
             quit()
 
     def post_notice(self, id, rule_name, alert_date, alert_age):
-        for k, v in hive_30_dict.items():
-            if k in hive_30_list or k in ignore_list:
-                logging.warning("Already notified regarding ID / Previously ignored: " + k)
+        for k, v in low_sev_dict.items():
+            if k in low_sev_list or k in ignore_list:
+                logging.warning("SLACK_API: Previously seen / ignored: %s" % k)
             else:
                 res = self.slack_client.chat_postMessage(channel=self.channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
                 alert_dict[id] = {'channel': res['channel'], 'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age}
 
-        for k, v in hive_45_dict.items():
-            if k in hive_45_list or k in ignore_list:
-                logging.warning("Already notified regarding ID / Previously ignored: " + k)
+        for k, v in med_sev_dict.items():
+            if k in med_sev_list or k in ignore_list:
+                logging.warning("SLACK_API: Previously seen / ignored: %s" % k)
             else:
                 res = self.slack_client.chat_postMessage(channel=self.channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
                 alert_dict[id] = {'channel': res['channel'], 'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age}
 
-        for k, v in hive_60_dict.items():
-            if k in hive_60_list or k in ignore_list:
-                logging.warning("Already notified regarding ID or previously ignored: %s" % k)
+        for k, v in high_sev_dict.items():
+            if k in high_sev_list or k in ignore_list:
+                logging.warning("SLACK_API: Previously seen / ignored: %s" % k)
             else:
                 res = self.slack_client.chat_postMessage(channel=self.channel, text="TheHive SLA Monitor: SLA Breach", blocks=slack_bot_alert_notice_template(id, rule_name, alert_date, alert_age))
                 alert_dict[id] = {'channel': res['channel'], 'ts': res['message']['ts'], 'rule_name': rule_name, 'alert_date': alert_date, 'alert_age': alert_age}
