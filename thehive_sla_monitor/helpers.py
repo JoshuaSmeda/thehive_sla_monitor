@@ -71,21 +71,22 @@ def high_risk_escalate(alert):
     return True
     """
     high_risk_detected = False
-    if len(alert['artifacts']) >= 1:  # Check to see if artifact has data
-        artifact_arr = []
-        for element in range(len(alert['artifacts'])):
-            x = alert['artifacts'][element]['data']
-            artifact_arr.append(x)
+    if alert['severity'] == configuration.SYSTEM_SETTINGS['HIGH_RISK_WORDS_SEVERITY_LEVEL']:
+        if len(alert['artifacts']) >= 1:  # Check to see if artifact has data
+            artifact_arr = []
+            for element in range(len(alert['artifacts'])):
+                x = alert['artifacts'][element]['data']
+                artifact_arr.append(x)
 
-    for word in configuration.SLA_SETTINGS['HIGH_RISK_WORDS']:
-        if any(word.lower() in s.lower() for s in artifact_arr):
-            high_risk_detected = True
-        elif word.lower() in alert['title'].lower():
-            high_risk_detected = True
-    if high_risk_detected:
-        return True
-    else:
-        return False
+        for word in configuration.SYSTEM_SETTINGS['HIGH_RISK_WORDS']:
+            if any(word.lower() in s.lower() for s in artifact_arr):
+                high_risk_detected = True
+            elif word.lower() in alert['title'].lower():
+                high_risk_detected = True
+        if high_risk_detected:
+            return True
+        else:
+            return False
 
 def get_alert_timer(hive_alert):
     """
@@ -120,33 +121,33 @@ def get_sla_data(dct, obj):
             continue  # Skip enabled obj
         keys.append(element)
     for k in keys:
-        data[k] = {'TIMER': dct[obj][k]['TIMER'], 'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
+        try:
+            data[k] = {'TIMER': dct[obj][k]['TIMER'], 'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
+        except Exception:
+            data[k] = {'NOTIFICATION_METHOD': dct[obj][k]['NOTIFICATION_METHOD']}
 
     tuple_obj = ()
     for x in data:
         tuple_obj += (data[x],)
     return tuple_obj
 
+
 def escalation_check(alert_id):
     if alert_id in low_sev_list and alert_id in med_sev_list:
         print("Removing alert from seen_list as it's moved up a tier")
-        seen_list.remove(alert_id)
+        try:
+            seen_list.remove(alert_id)
+        except Exception:
+            pass
         low_sev_list.remove(alert_id)
 
     elif alert_id in med_sev_list and alert_id in high_sev_list:
         print("Removing alert from seen_list as it's moved a tier (2nd)")
-        seen_list.remove(alert_id)
+        try:
+            seen_list.remove(alert_id)
+        except Exception:
+            pass
         med_sev_list.remove(alert_id)
+
     else:
-        print('Nothing to change!!')
-
-
-#    print(set(low_sev_list).intersection(med_sev_list, high_sev_list))
-
-    #for aval, bval, cval in itertools.product(low_sev_list, med_sev_list, high_sev_list):
-    #    if aval == bval and bval == cval:
-    #        print(aval)
-
-    #print([i for i, j in zip(low_sev_list, med_sev_list) if i == j])
-
-    #[x for x in a if x in b]
+        print('Nothing to change.')
