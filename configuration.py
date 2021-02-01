@@ -1,8 +1,8 @@
 SLA_SETTINGS = {
     'THEHIVE_LEVEL1': {'ENABLED': True,
-                       'LOW_SEVERITY': {'TIMER': 60, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
-                       'MEDIUM_SEVERITY': {'TIMER': 80, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_ESC']},
-                       'HIGH_SEVERITY': {'TIMER': 120, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_ESC']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
                        'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
 
     'THEHIVE_LEVEL2': {'ENABLED': True,
@@ -12,9 +12,9 @@ SLA_SETTINGS = {
                        'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
 
     'THEHIVE_LEVEL3': {'ENABLED': True,
-                       'LOW_SEVERITY': {'TIMER': 60, 'NOTIFICATION_METHOD': ['SLACK_API']},
-                       'MEDIUM_SEVERITY': {'TIMER': 180, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
-                       'HIGH_SEVERITY': {'TIMER': 240, 'NOTIFICATION_METHOD': ['TWILIO_CALL']},
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['TWILIO_CALL']},
                        'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}}
 }
 

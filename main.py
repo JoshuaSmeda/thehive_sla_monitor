@@ -150,7 +150,7 @@ def thehive():
         #    logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
         # logging.info("Run completed. Re-polling in 2 minutes.")
-        t.sleep(10)
+        t.sleep(120)
 
 
 def spawn_webserver():
