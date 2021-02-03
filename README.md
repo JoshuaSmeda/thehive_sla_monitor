@@ -38,15 +38,32 @@ The following explains the parameters accepted:
 SLA_SETTINGS = {
      # Int: seconds to classify the age of a low severity SLA breach in the form of seconds
      # Note: Do not adjust the key name as it's used in conjunction with a switch case function within the program.
+     # This nested dictionary allows you to configure whether you want to enable alerting for each of the 3 tiers provided by TheHive. Adjust the TIMER accordingly based on your SLA requirements
+     # and the NOTIFICATION_METHOD. You can include a single method, or even multiple if your use-case requires so.
+     # The HIGH_RISK object is necessary for any high_word_risk triggers - do not remove!
 
-    'LOW_SEVERITY': 1800,
-    'MEDIUM_SEVERITY': 2700,
-    'HIGH_SEVERITY': 3600,
-    'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
+     'THEHIVE_LEVEL1': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_ESC']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
+
+     'THEHIVE_LEVEL2': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['TWILIO_SMS']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
+
+     'THEHIVE_LEVEL3': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}}
 }
 
 SYSTEM_SETTINGS = {
-    'SEVERITY_LEVEL': 3,  # Int: The TheHive severity level you wish to query for. # Low = 1, Medium = 2, High = 3
+    'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
+    'HIGH_RISK_WORDS_SEVERITY_LEVEL': 2, # Integer: Adjust the specific severity level you want high_risk_words to specifically run on. For example, if you only want high_risk_words triggers on TheHive severity 3 alerts.
     'HIVE_SERVER_IP': '192.168.1.15',  # String: The server IP or functioning DNS name of the TheHive instance you would like to query.
     'HIVE_SERVER_PORT': 9000,  # Int: The TheHive port that's exposed to the instance this program will be running from.
     'HIVE_FQDN': 'http://192.168.1.15',  # String: The FQDN of the TheHive instance.
@@ -80,67 +97,8 @@ SLACK_SETTINGS = {
 
 ## Adjust what gets alerted on:
 
-If you wish to adjust / add / remove what happens when a alert hits a specified SLA tier and the alert method that gets triggered (i.e, send via Twilio / send via Slack). You can adjust the definitions under the `classmethods` within `main.py`
+If you wish to adjust / add / remove what happens when a alert hits a specified SLA tier and the alert method that gets triggered (i.e, send via Twilio / send via Slack). You can adjust the definitions within `configuration.py`.`
 
-Existing configuration for reference to compare with below:
-
-```
-class EscalationSelector:
-    """
-    Dynamically escalate Hive alerts based on configured severity
-    """
-    @classmethod
-    def escalate(cls, severity, *args, **kwargs):
-        """
-        This classmethod executes the approriate classmethod based on the providers severity attribute.
-        """
-        getattr(cls, f'{severity}')(*args, **kwargs)
-
-    @classmethod
-    def low_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and sends an SMS to the person currently "on-call".
-        """
-        logging.warning('LowSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_30_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        Twilio().send_sms(*args)
-
-    @classmethod
-    def medium_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and makes a call to the person currently "on-call".
-        """
-        logging.warning('MediumSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_45_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        Twilio().make_call(alert_id)
-
-    @classmethod
-    def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and makes an escalated call once this tier is reached.
-        """
-        logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_60_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-
-```
-
-For example:
-
-Removing `Slack` posting for `high_severity` alerts:
-
-```
-@classmethod
-def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-  """
-  This classmethod alerts via Slack and makes an escalated call once this tier is reached.
-  """
-  logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-  Alerter().add_to_60_dict(alert_id, rule_name)
-  # Removed the Slack function reference!
-```
 
 ## How to install:
 
@@ -193,3 +151,14 @@ Reload the daemon:
 ```systemctl daemon-reload```
 
 Run / Start the bot with ```service thehive_sla_monitor start```.
+
+## Deploy via Docker
+
+If you wish to deploy via Docker, a handy Dockerfile has already been created for you. Just run the following commands in order:
+
+Note: Adjust the `--publish` settings to the current IP address, exposed port (image built with port 3000) and container port if you build the image with a different port.
+
+```
+docker build -t thehive_sla_monitor .
+docker run --publish 192.168.1.33:3000:3000 thehive_sla_monitor
+```
