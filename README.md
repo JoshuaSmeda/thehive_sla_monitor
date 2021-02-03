@@ -97,67 +97,8 @@ SLACK_SETTINGS = {
 
 ## Adjust what gets alerted on:
 
-If you wish to adjust / add / remove what happens when a alert hits a specified SLA tier and the alert method that gets triggered (i.e, send via Twilio / send via Slack). You can adjust the definitions under the `classmethods` within `main.py`
+If you wish to adjust / add / remove what happens when a alert hits a specified SLA tier and the alert method that gets triggered (i.e, send via Twilio / send via Slack). You can adjust the definitions within `configuration.py`.`
 
-Existing configuration for reference to compare with below:
-
-```
-class EscalationSelector:
-    """
-    Dynamically escalate Hive alerts based on configured severity
-    """
-    @classmethod
-    def escalate(cls, severity, *args, **kwargs):
-        """
-        This classmethod executes the approriate classmethod based on the providers severity attribute.
-        """
-        getattr(cls, f'{severity}')(*args, **kwargs)
-
-    @classmethod
-    def low_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and sends an SMS to the person currently "on-call".
-        """
-        logging.warning('LowSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_30_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        Twilio().send_sms(*args)
-
-    @classmethod
-    def medium_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and makes a call to the person currently "on-call".
-        """
-        logging.warning('MediumSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_45_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-        Twilio().make_call(alert_id)
-
-    @classmethod
-    def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-        """
-        This classmethod alerts via Slack and makes an escalated call once this tier is reached.
-        """
-        logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-        Alerter().add_to_60_dict(alert_id, rule_name)
-        Slack().post_notice(alert_id, rule_name, alert_date, alert_age)
-
-```
-
-For example:
-
-Removing `Slack` posting for `high_severity` alerts:
-
-```
-@classmethod
-def high_severity(cls, alert_id, rule_name, alert_date, alert_age, *args, **kwargs):
-  """
-  This classmethod alerts via Slack and makes an escalated call once this tier is reached.
-  """
-  logging.warning('HighSeverity: Alert ID: %s. Rule Name: %s. Alert Date: %s. Alert Age: %s' % (alert_id, rule_name, alert_date, alert_age))
-  Alerter().add_to_60_dict(alert_id, rule_name)
-  # Removed the Slack function reference!
-```
 
 ## How to install:
 
@@ -210,3 +151,14 @@ Reload the daemon:
 ```systemctl daemon-reload```
 
 Run / Start the bot with ```service thehive_sla_monitor start```.
+
+## Deploy via Docker
+
+If you wish to deploy via Docker, a handy Dockerfile has already been created for you. Just run the following commands in order:
+
+Note: Adjust the `--publish` settings to the current IP address, exposed port (image built with port 3000) and container port if you build the image with a different port.
+
+```
+docker build -t thehive_sla_monitor .
+docker run --publish 192.168.1.33:3000:3000 thehive_sla_monitor
+```
