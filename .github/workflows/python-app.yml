@@ -5,9 +5,9 @@ name: build_python
 
 on:
   push:
-    branches: [ master ]
+    branches: [ production ]
   pull_request:
-    branches: [ master ]
+    branches: [ production ]
 
 jobs:
   build:
