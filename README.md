@@ -38,15 +38,32 @@ The following explains the parameters accepted:
 SLA_SETTINGS = {
      # Int: seconds to classify the age of a low severity SLA breach in the form of seconds
      # Note: Do not adjust the key name as it's used in conjunction with a switch case function within the program.
+     # This nested dictionary allows you to configure whether you want to enable alerting for each of the 3 tiers provided by TheHive. Adjust the TIMER accordingly based on your SLA requirements
+     # and the NOTIFICATION_METHOD. You can include a single method, or even multiple if your use-case requires so.
+     # The HIGH_RISK object is necessary for any high_word_risk triggers - do not remove!
 
-    'LOW_SEVERITY': 1800,
-    'MEDIUM_SEVERITY': 2700,
-    'HIGH_SEVERITY': 3600,
-    'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
+     'THEHIVE_LEVEL1': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_ESC']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
+
+     'THEHIVE_LEVEL2': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['TWILIO_SMS']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}},
+
+     'THEHIVE_LEVEL3': {'ENABLED': True,
+                       'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API']},
+                       'MEDIUM_SEVERITY': {'TIMER': 2700, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
+                       'HIGH_SEVERITY': {'TIMER': 3600, 'NOTIFICATION_METHOD': ['TWILIO_CALL']},
+                       'HIGH_RISK': {'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_CALL']}}
 }
 
 SYSTEM_SETTINGS = {
-    'SEVERITY_LEVEL': 3,  # Int: The TheHive severity level you wish to query for. # Low = 1, Medium = 2, High = 3
+    'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
+    'HIGH_RISK_WORDS_SEVERITY_LEVEL': 2, # Integer: Adjust the specific severity level you want high_risk_words to specifically run on. For example, if you only want high_risk_words triggers on TheHive severity 3 alerts.
     'HIVE_SERVER_IP': '192.168.1.15',  # String: The server IP or functioning DNS name of the TheHive instance you would like to query.
     'HIVE_SERVER_PORT': 9000,  # Int: The TheHive port that's exposed to the instance this program will be running from.
     'HIVE_FQDN': 'http://192.168.1.15',  # String: The FQDN of the TheHive instance.

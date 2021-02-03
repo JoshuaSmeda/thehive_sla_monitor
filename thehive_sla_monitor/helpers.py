@@ -134,7 +134,7 @@ def get_sla_data(dct, obj):
 
 def escalation_check(alert_id):
     if alert_id in low_sev_list and alert_id in med_sev_list:
-        print("Removing alert from seen_list as it's moved up a tier")
+        # print("Removing alert from seen_list as it's moved up a tier")
         try:
             seen_list.remove(alert_id)
         except Exception:
@@ -142,7 +142,7 @@ def escalation_check(alert_id):
         low_sev_list.remove(alert_id)
 
     elif alert_id in med_sev_list and alert_id in high_sev_list:
-        print("Removing alert from seen_list as it's moved a tier (2nd)")
+        # print("Removing alert from seen_list as it's moved a tier (2nd)")
         try:
             seen_list.remove(alert_id)
         except Exception:
@@ -150,4 +150,4 @@ def escalation_check(alert_id):
         med_sev_list.remove(alert_id)
 
     else:
-        print('Nothing to change.')
+        pass 

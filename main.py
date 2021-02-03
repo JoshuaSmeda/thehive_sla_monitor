@@ -146,10 +146,11 @@ def thehive():
     while True:
         # try:
         thehive_search('Formatted DATA:', Eq('status', 'New'))
+        # Removed this temporarily since the error handling is poor.
         # except Exception as err:
         #    logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
-        # logging.info("Run completed. Re-polling in 2 minutes.")
+        logging.info("Run completed. Re-polling in 2 minutes.")
         t.sleep(120)
 
 
