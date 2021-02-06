@@ -1,8 +1,9 @@
 # Utilities
+import pdb
 import json
 import time as t
+import multiprocessing as mp
 from datetime import datetime
-from multiprocessing import Process
 
 # TheHive Imports
 from thehive4py.api import TheHiveApi
@@ -10,12 +11,7 @@ from thehive4py.query import Eq
 
 # Custom Imports
 import configuration
-from thehive_sla_monitor.flask import app
 from thehive_sla_monitor.logger import logging
-from thehive_sla_monitor.alerter import Alerter
-from thehive_sla_monitor.slack.base import Slack
-from thehive_sla_monitor.twilio.base import Twilio
-from thehive_sla_monitor.helpers import high_risk_escalate, get_active_sla, get_sla_data, get_alert_timer
 
 # Define variables
 HIVE_SERVER_IP = configuration.SYSTEM_SETTINGS['HIVE_SERVER_IP']
@@ -144,7 +140,6 @@ def thehive():
     This method queries TheHive API for alerts
     """
     while True:
-        # try:
         thehive_search('Formatted DATA:', Eq('status', 'New'))
         # Removed this temporarily since the error handling is poor.
         # except Exception as err:
@@ -158,6 +153,7 @@ def spawn_webserver():
     """
     This method spawns a Flask webserver that's used in conjunction with Slack
     """
+    from thehive_sla_monitor.flask import app
     if configuration.FLASK_SETTINGS['ENABLE_WEBSERVER']:
         app.run(port=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_PORT'], host=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_IP'])
     else:
@@ -172,11 +168,14 @@ class GarbageDataException(Exception):
         logging.error('Potentially garbage notification method in %s configuration. Please review!' % (self.sla_level))
         return 'Error logged, please review and address immediately!'
 
-
-if __name__ == '__main__':
-    spawn_webserver = Process(target=spawn_webserver)
-    thehive = Process(target=thehive)
-    thehive.start()
-    spawn_webserver.start()
-    thehive.join()
-    spawn_webserver.join()
+if __name__ == '__main__':    
+    from thehive_sla_monitor.slack.base import Slack
+    from thehive_sla_monitor.alerter import Alerter
+    from thehive_sla_monitor.twilio.base import Twilio
+    from thehive_sla_monitor.helpers import high_risk_escalate, get_active_sla, get_sla_data, get_alert_timer
+    x = mp.Process(target=thehive)
+    z = mp.Process(target=spawn_webserver)
+    x.start()
+    z.start()
+    x.join()
+    z.join()
