@@ -1,5 +1,5 @@
 """
-This module defines the logging parameters for the program.
+This module defines the logging parameters for the application.
 """
 
 import logging
