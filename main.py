@@ -144,7 +144,7 @@ def thehive():
     This method queries TheHive API for alerts
     """
     while True:
-        timer = configuration.SYSTEM_SETTINGS['LOOP_TIMER']
+        timer = configuration.SYSTEM_SETTINGS['LOOP_TIME']
         thehive_search('Formatted DATA:', Eq('status', 'New'))
         # Removed this temporarily since the error handling is poor.
         # except Exception as err:
