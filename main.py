@@ -133,7 +133,7 @@ def thehive_search(title, query):
                         else:
                             raise GarbageDataException(severity_switch(hive_alert_severity))
 
-                    elif MAX_AGE < time_diff.total_seconds():
+                    elif MAX_AGE < time_diff.total_seconds() and configuration.SYSTEM_SETTINGS['MAX_ALERT_DETECTION_ENABLED']:
                         logging.warning('MAX_AGE Severity Breach (%s). Alert Age: %s. Ignore at own risk!' % (hive_alert['id'], time_diff))
                 else:
                     logging.info('%s has a severity level of %s which has not been enabled via configuration.py.' % (hive_alert['id'], hive_alert_severity))
