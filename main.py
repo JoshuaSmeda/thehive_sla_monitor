@@ -144,14 +144,14 @@ def thehive():
     This method queries TheHive API for alerts
     """
     while True:
-        # try:
+        timer = configuration.SYSTEM_SETTINGS['LOOP_TIMER']
         thehive_search('Formatted DATA:', Eq('status', 'New'))
         # Removed this temporarily since the error handling is poor.
         # except Exception as err:
         #    logging.error("Failure attempting when attempting to escalate TheHive alerts. %s" % err)
 
-        logging.info("Run completed. Re-polling in 2 minutes.")
-        t.sleep(configuration.SYSTEM_SETTINGS['LOOP_TIMER'])
+        logging.info("Run completed. Re-polling in %s seconds." % timer)
+        t.sleep(timer)
 
 
 def spawn_webserver():
