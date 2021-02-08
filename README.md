@@ -63,7 +63,8 @@ SLA_SETTINGS = {
 SYSTEM_SETTINGS = {
     'HIGH_RISK_WORDS': ['CRITICAL', 'URGENT', 'FAILURE']  # List: Add custom words here that you want to be critically alerted on. These words must be included (non-case sensitive) in the Hive title or in one of the artifacts. This will immediately escalate to HIGH_SEVERITY SLA.
     'HIGH_RISK_WORDS_SEVERITY_LEVEL': 2, # Integer: Adjust the specific severity level you want high_risk_words to specifically run on. For example, if you only want high_risk_words triggers on TheHive severity 3 alerts.
-    'LOOP_TIME': 120, # Integer: Adjust the amount of time in seconds the application must re-poll TheHive
+    'LOOP_TIME': 120, # Integer: Adjust the amount of time in seconds the application must re-poll TheHive.
+    'MAX_ALERT_DETECTION_AGE': 604800, # Integer: Adjust the max_age alert time, to prevent TheHive triggers on alerts older than x amount of seconds. Default is 7 days.
     'HIVE_SERVER_IP': '192.168.1.15',  # String: The server IP or functioning DNS name of the TheHive instance you would like to query.
     'HIVE_SERVER_PORT': 9000,  # Int: The TheHive port that's exposed to the instance this program will be running from.
     'HIVE_FQDN': 'http://192.168.1.15',  # String: The FQDN of the TheHive instance.
