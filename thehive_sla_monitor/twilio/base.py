@@ -105,7 +105,8 @@ class Twilio():
                     count = 0
                     for msg in out:
                         count += 1
-                        attach_text = " ~ ( %d / %d )" % (count, total_msgs_necessary)
+                        last_5_digits = hive_alert['id'][-5:]
+                        attach_text = " ~ %s [%d/%d]" % (last_5_digits, count, total_msgs_necessary)
                         twilio_msg_body = (msg + attach_text)
                         self.send_truncated_message(twilio_msg_body)
 
