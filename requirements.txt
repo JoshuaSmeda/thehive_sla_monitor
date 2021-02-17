@@ -69,7 +69,7 @@ ssh-import-id==5.10
 systemd-python==234
 thehive4py==1.7.2
 twilio==6.44.1
-Twisted==18.9.0
+Twisted==20.3.0
 typing-extensions==3.7.4.2
 ubuntu-advantage-tools==20.3
 ufw==0.36
