@@ -10,7 +10,7 @@ from thehive4py.query import Eq
 
 # Custom Imports
 import configuration
-from thehive_sla_monitor.flask import app
+from thehive_sla_monitor.flask import app, serve
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.alerter import Alerter
 from thehive_sla_monitor.slack.base import Slack
@@ -170,7 +170,8 @@ def spawn_webserver():
     This method spawns a Flask webserver that's used in conjunction with Slack
     """
     if configuration.FLASK_SETTINGS['ENABLE_WEBSERVER']:
-        app.run(port=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_PORT'], host=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_IP'])
+        logging.info("Spawning Waitress webserver.")
+        serve(app, host=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_IP'], port=configuration.FLASK_SETTINGS['FLASK_WEBSERVER_PORT'])
     else:
         logging.warning("Flask webserver disabled. You will experience limited functionality.")
 

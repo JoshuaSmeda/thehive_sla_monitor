@@ -7,6 +7,7 @@ import configuration
 
 # Custom Imports
 from flask import Flask, redirect
+from waitress import serve
 from thehive_sla_monitor.logger import logging
 from thehive_sla_monitor.slack.base import Slack
 from thehive_sla_monitor.helpers import add_to_temp_ignore, promote_to_case
