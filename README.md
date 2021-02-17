@@ -1,6 +1,6 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoshuaSmeda/TheHive_SLA_Monitor/issues)
 ![build_python](https://github.com/JoshuaSmeda/thehive_sla_monitor/workflows/build_python/badge.svg)
-[![commit_activity](https://img.shields.io/github/commit-activity/m/JoshuaSmeda/TheHive_SLA_Monitor?label=commit_activity)]
+![commit_activity](https://img.shields.io/github/commit-activity/m/JoshuaSmeda/TheHive_SLA_Monitor?label=commit_activity)
 
 # TheHive_SLA_Monitor (Poorman's Opsgenie)
 This applications runs as a standalone script or as a service, queries TheHive (SIRP) alerts based on set severity statuses while cross checking custom set SLA limits, and SMS's or calls specified people if there is a breach or escalation necessary.
