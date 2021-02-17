@@ -1,16 +1,18 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/JoshuaSmeda/TheHive_SLA_Monitor/issues)
 ![build_python](https://github.com/JoshuaSmeda/thehive_sla_monitor/workflows/build_python/badge.svg)
+![commit_activity](https://img.shields.io/github/commit-activity/m/JoshuaSmeda/TheHive_SLA_Monitor?label=commit_activity)
 
-# TheHive_SLA_Monitor
-This applications runs as a Linux service, queries TheHive (SIRP) alerts based on a set severity status while cross checking set SLA limits and then SMS's or calls specified people if there is a breach. This is achieved with the following technologies:
+# TheHive_SLA_Monitor (Poorman's Opsgenie)
+This applications runs as a standalone script or as a service, queries TheHive (SIRP) alerts based on set severity statuses while cross checking custom set SLA limits, and SMS's or calls specified people if there is a breach or escalation necessary.
 
-```
-Python3
-Flask
-Twilio
-Slack
-TheHive (SIRP)
-```
+Here's an general idea of how it works: The TheHive_SLA_Monitor application queries TheHive API and will poll for any existing Hive alerts as depicted below:
+
+![carbon (3)](https://user-images.githubusercontent.com/39983886/108267966-8ebf9f80-7174-11eb-92b2-50d1956dc4ea.png)
+
+If a alert hits a pre-defined threshold, you will see an alert fire - how you want to be alerted is up to you!
+
+![carbon (4)](https://user-images.githubusercontent.com/39983886/108268246-eb22bf00-7174-11eb-8ba7-04fa379c0172.png)
+
 
 ## Overview:
 
@@ -39,7 +41,7 @@ SLA_SETTINGS = {
      # Note: Do not adjust the key name as it's used in conjunction with a switch case function within the program.
      # This nested dictionary allows you to configure whether you want to enable alerting for each of the 3 tiers provided by TheHive. Adjust the TIMER accordingly based on your SLA requirements
      # and the NOTIFICATION_METHOD. You can include a single method, or even multiple if your use-case requires so.
-     # The HIGH_RISK object is necessary for any high_word_risk triggers - do not remove!
+     # The HIGH_RISK object is necessary for any high_word_risk triggers - Do NOT Remove!
 
      'THEHIVE_LEVEL1': {'ENABLED': True,
                        'LOW_SEVERITY': {'TIMER': 1800, 'NOTIFICATION_METHOD': ['SLACK_API', 'TWILIO_SMS']},
