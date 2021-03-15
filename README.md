@@ -16,7 +16,7 @@ If a alert hits a pre-defined threshold, you will see an alert fire - how you wa
 
 ## Overview:
 
-This application connects to your slack workspace using the Slack API. The application periodically polls the TheHive (every 2 minutes) https://thehive-project.org/ using a pre-defined API key. It grabs all pending alerts with a severity status of your choice (specific tiers, or all 3) and performs SLA checks on the alerts. The SLA's are up-to-you to decide on what you want them to be, but here is a general idea to get you going:
+This application connects to your Slack workspace using the Slack API. The application periodically polls the [TheHive](https://thehive-project.org/) using a pre-defined API key. It grabs all alerts with a severity status of your choice (specific tiers, or all 3) and performs SLA checks on the alerts. The SLA's are up-to-you to decide on what you want them to be, but here is a general idea to get you going:
 
 30 minutes - SMS person scheduled "on-call" <br>
 45 minutes - Call person scheduled "on-call" and echo a generic, pre-defined, message via Twilio using a Twimlet. This serves as an additional alert.<br>
@@ -24,7 +24,7 @@ This application connects to your slack workspace using the Slack API. The appli
 
 Once a alert fires, it won't be re-alert on unless it hits a new SLA tier (e.g. Moves from 30 minutes to 45 minutes).
 
-Each alert will create a slack notice that allows you to promote to case or ignore the alert for 30 minutes from within Slack (if enabled) instead of manually acknowledging the alert via the TheHive UI / API. When promoting a case, Slack will link you to the imported case for convenience. When ignoring, the alert won't re-alert at 45 / 60 minutes for 30 minutes.
+Each alert will create a slack notice that allows you to promote to case or ignore the alert for 30 minutes from within Slack, instead of manually acknowledging the alert via the TheHive UI / API. When promoting a case, Slack will link you to the imported case for convenience. When ignoring, the alert won't re-alert at 45 / 60 minutes for 30 minutes.
 
 A log record is generated each transactional event which allows you to track and audit events.
 
@@ -69,7 +69,7 @@ SYSTEM_SETTINGS = {
     'MAX_ALERT_DETECTION_ENABLED': True, # Boolean: Switch MAX_DETECTION_AGE ON / OFF. Default is ON.
     'MAX_ALERT_DETECTION_AGE': 604800, # Integer: Adjust the max_age alert time, to prevent TheHive triggers on alerts older than x amount of seconds. Default is 7 days.
     'HIVE_SERVER_IP': '192.168.1.15',  # String: The server IP or functioning DNS name of the TheHive instance you would like to query.
-    'HIVE_SERVER_PORT': 9000,  # Int: The TheHive port that's exposed to the instance this program will be running from.
+    'HIVE_SERVER_PORT': 9000,  # Integer: The TheHive port that's exposed to the instance this program will be running from.
     'HIVE_FQDN': 'http://192.168.1.15',  # String: The FQDN of the TheHive instance.
     'HIVE_API_KEY': 'iIMm25V63IjkoLN0MlsJJTcdrPYYhyBi',  # String: The TheHive API key generated for the API user you created.
     'LOG_FILE_LOCATION': 'debug.log'  # String: The file location where you would like to store your logs. You can specify a file path as well.
@@ -78,7 +78,7 @@ SYSTEM_SETTINGS = {
 FLASK_SETTINGS = {
     'ENABLE_WEBSERVER': True,  # Boolean: Toggle to enable Flask to enrich the Slack integration. Set to False to disable.
     'FLASK_WEBSERVER_IP': '192.168.1.200',  # String: The IP of the instance you running this program on (will act as a webserver so needs to be reachable).
-    'FLASK_WEBSERVER_PORT': 3000  # Int: The webserver port you wish to expose Flask on.
+    'FLASK_WEBSERVER_PORT': 3000  # Integer: The webserver port you wish to expose Flask on.
 }
 
 TWILIO_SETTINGS = {
