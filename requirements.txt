@@ -21,7 +21,7 @@ slackclient==2.7.3
 thehive4py==1.7.2
 twilio==6.44.1
 typing-extensions==3.7.4.2
-urllib3==1.25.10
+urllib3==1.26.5
 waitress==1.4.4
 Werkzeug==1.0.1
 yarl==1.5.0
